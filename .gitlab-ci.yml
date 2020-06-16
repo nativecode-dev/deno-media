@@ -1,0 +1,29 @@
+image: nativecode/deno:0.2.0
+
+stages:
+  - test
+  - publish
+
+test:
+  stage: test
+  script:
+    - deno run --allow-env --allow-read --allow-write http://deno.land/x/gh:nativecode-dev:dent/build.ts
+    - deno test --allow-env --allow-net --allow-read --allow-write
+  services:
+    - couchdb:2
+    - rabbitmq:3
+  variables:
+    COUCHDB_USER: admin
+    COUCHDB_PASSWORD: password
+    RABBITMQ_DEFAULT_USER: admin
+    RABBITMQ_DEFAULT_PASS: password
+publish:
+  stage: publish
+  script:
+    - mkdir dist
+    - deno bundle mod.ts dist/mod.ts
+  only:
+    - master
+  artifacts:
+    paths:
+      - dist
