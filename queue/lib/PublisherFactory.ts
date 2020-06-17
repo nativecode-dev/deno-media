@@ -1,10 +1,14 @@
-import { connect, AmqpChannel, ConnectorOptions } from '../deps.ts'
+import { connect, AmqpChannel, ConnectorOptions, QueueDeclareOk } from '../deps.ts'
 
 import { Envelope } from './Envelope.ts'
 import { QueueOptions } from './QueueOptions.ts'
 
 export class PublisherFactory<T> {
-  constructor(private readonly connection: ConnectorOptions, private readonly options: QueueOptions) {}
+  constructor(private readonly connection: ConnectorOptions, private readonly options: QueueOptions) {
+    if (this.options.queue === undefined) {
+      this.options.queue = this.options.subject
+    }
+  }
 
   async create(): Promise<Publisher<T>> {
     const connection = await connect({
@@ -12,25 +16,25 @@ export class PublisherFactory<T> {
       password: this.connection.credentials?.password,
       username: this.connection.credentials?.username,
       port: this.connection.endpoint.port,
+      vhost: this.connection.arguments?.vhost,
     })
 
     const channel = await connection.openChannel()
+    const queue = await channel.declareQueue(this.options)
 
-    await channel.declareQueue(this.options)
-
-    return new Publisher<T>(this.options, channel)
+    return new Publisher<T>(this.options, channel, queue)
   }
 }
 
 class Publisher<T> {
   private readonly encoder = new TextEncoder()
 
-  constructor(private readonly options: QueueOptions, private readonly channel: AmqpChannel) {}
+  constructor(private readonly options: QueueOptions, private readonly channel: AmqpChannel, queue: QueueDeclareOk) {}
 
-  send(message: T): Promise<void> {
+  async send(message: T): Promise<void> {
     const envelope: Envelope<T> = { body: message, subject: this.options.subject }
 
-    return this.channel.publish(
+    await this.channel.publish(
       { routingKey: this.options.queue },
       { contentType: 'application/json' },
       this.encoder.encode(JSON.stringify(envelope)),

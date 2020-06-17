@@ -8,6 +8,7 @@ const envobj = env.toObject()
 
 const DEFAULTS = ObjectMerge.merge<ConnectorOptions>(
   {
+    arguments: { vhost: '/' },
     endpoint: {
       host: 'localhost',
       port: 5672,
@@ -18,7 +19,7 @@ const DEFAULTS = ObjectMerge.merge<ConnectorOptions>(
 )
 
 Deno.test('should publish to queue', async () => {
-  const factory = new PublisherFactory(DEFAULTS, { subject: 'test-queue' })
+  const factory = new PublisherFactory<{ test: string }>(DEFAULTS, { durable: false, subject: 'test-queue' })
   const publisher = await factory.create()
-  // await publisher.send({ test: 'message' })
+  await publisher.send({ test: 'message' })
 })
