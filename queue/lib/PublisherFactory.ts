@@ -4,15 +4,14 @@ import { Envelope } from './Envelope.ts'
 import { QueueOptions } from './QueueOptions.ts'
 
 export class PublisherFactory<T> {
-  constructor(private readonly connection: ConnectorOptions, private readonly options: QueueOptions) {
-    console.log(connection)
-  }
+  constructor(private readonly connection: ConnectorOptions, private readonly options: QueueOptions) {}
 
   async create(): Promise<Publisher<T>> {
     const connection = await connect({
       hostname: this.connection.endpoint.host,
       password: this.connection.credentials?.password,
       username: this.connection.credentials?.username,
+      port: this.connection.endpoint.port,
     })
 
     const channel = await connection.openChannel()

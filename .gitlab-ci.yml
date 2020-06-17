@@ -11,7 +11,7 @@ test:
     - deno test --allow-env --allow-net --allow-read --allow-write
   services:
     - couchdb:2
-    - rabbitmq:3
+    - rabbitmq:3-management
   variables:
     COUCHDB_USER: admin
     COUCHDB_PASSWORD: password
