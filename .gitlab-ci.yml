@@ -8,6 +8,7 @@ test:
   stage: test
   script:
     - deno run --allow-env --allow-read --allow-write http://deno.land/x/gh:nativecode-dev:dent/build.ts
+    - deno run --allow-net http://deno.land/x/gh:nativecode-dev:dent/connector/mod_run.ts localhost --port 5672
     - deno test --allow-env --allow-net --allow-read --allow-write
   services:
     - couchdb:2
