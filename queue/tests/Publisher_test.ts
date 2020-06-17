@@ -20,5 +20,5 @@ const DEFAULTS = ObjectMerge.merge<ConnectorOptions>(
 Deno.test('should publish to queue', async () => {
   const factory = new PublisherFactory(DEFAULTS, { subject: 'test-queue' })
   const publisher = await factory.create()
-  await publisher.send({ test: 'message' })
+  // await publisher.send({ test: 'message' })
 })
