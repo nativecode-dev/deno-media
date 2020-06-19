@@ -39,7 +39,7 @@ class Publisher<T> {
 
   constructor(private readonly options: QueueOptions, private readonly channel: AmqpChannel, queue: QueueDeclareOk) {}
 
-  async send(message: T): Promise<void> {
+  async send(message: T): Promise<Envelope<T>> {
     const envelope: Envelope<T> = { body: message, subject: this.options.subject }
 
     await this.channel.publish(
@@ -47,5 +47,7 @@ class Publisher<T> {
       { contentType: 'application/json' },
       this.encoder.encode(JSON.stringify(envelope)),
     )
+
+    return envelope
   }
 }

@@ -1,5 +1,6 @@
 import { connect, AmqpConnection, AmqpChannel, ConnectorOptions, QueueDeclareOk } from '../deps.ts'
 
+import { Envelope } from './Envelope.ts'
 import { EnvelopeQueue } from './EnvelopeQueue.ts'
 import { QueueOptions } from './QueueOptions.ts'
 
@@ -33,16 +34,20 @@ class Consumer<T> {
 
   constructor(private readonly channel: AmqpChannel, private readonly options: QueueOptions, private readonly queue: QueueDeclareOk) {}
 
-  acknowledge(envelope: EnvelopeQueue<T>) {
+  ack(envelope: EnvelopeQueue<T>) {
     return this.channel.ack({ deliveryTag: envelope.args.deliveryTag })
   }
 
   consume(): Promise<EnvelopeQueue<T>> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
       return this.channel.consume(this.options, async (args, props, data) => {
-        const envelop = JSON.parse(this.decoder.decode(data))
+        const envelop: Envelope<T> = JSON.parse(this.decoder.decode(data))
         resolve({ args, props, body: envelop.body, subject: envelop.subject })
       })
     })
+  }
+
+  nack(envelop: EnvelopeQueue<T>, requeue: boolean = true) {
+    return this.channel.nack({ deliveryTag: envelop.args.deliveryTag, requeue })
   }
 }
