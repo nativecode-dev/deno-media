@@ -16,6 +16,8 @@ export class PublisherFactory<T> {
     if (this.connection) {
       await this.connection.close()
     }
+
+    this.connection = undefined
   }
 
   async create(): Promise<Publisher<T>> {

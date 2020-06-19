@@ -21,6 +21,8 @@ export class Cache {
     if (this.redis) {
       this.redis.close()
     }
+
+    this.redis = undefined
   }
 
   async get<T>(key: string): Promise<T | undefined> {

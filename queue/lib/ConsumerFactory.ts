@@ -13,6 +13,8 @@ export class ConsumerFactory<T> {
     if (this.connection) {
       await this.connection.close()
     }
+
+    this.connection = undefined
   }
 
   async create() {
