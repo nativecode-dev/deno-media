@@ -16,7 +16,7 @@ export function main(options: MediaStoreOptions): Promise<void> {
 
   Alo.container.registerInstance(MediaStoreOptionsToken, options)
 
-  Alo.container.register(MediaStore, MediaStore)
+  Alo.container.register(MediaStore, { useValue: new MediaStore(options) })
   Alo.container.register(MediaStoreServer, MediaStoreServer)
   Alo.container.register<Dent.PublisherFactory<MediaStoreMessage>>(MediaStoreMessageToken, { useValue: factory })
 

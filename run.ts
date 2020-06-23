@@ -3,10 +3,9 @@ import * as path from 'https://deno.land/std@0.58.0/path/mod.ts'
 import { exists } from 'https://deno.land/std@0.58.0/fs/exists.ts'
 import { parse } from 'https://deno.land/std@0.58.0/flags/mod.ts'
 
-import { Dent } from './media-store/deps.ts'
+import { Dent } from './storage/deps.ts'
 
-import * as mediastore from './media-store/mod.ts'
-import { MediaStoreOptions } from './media-store/mod.ts'
+import { DefaultMediaStoreOptions, MediaStoreOptions, main } from './storage/mod.ts'
 
 interface ProgramArgs {
   _: string[]
@@ -15,7 +14,7 @@ interface ProgramArgs {
 const ARGS: ProgramArgs = parse(Deno.args) as ProgramArgs
 
 const EXECUTABLES: { [key: string]: (config: MediaStoreOptions) => Promise<void> | void } = {
-  store: mediastore.main,
+  store: main,
 }
 
 const CONFIG_DIR = path.join(Deno.cwd(), '.config')
@@ -25,7 +24,7 @@ if ((await exists(CONFIG_DIR)) === false) {
 }
 
 async function configuration(filename: string): Promise<[string, MediaStoreOptions]> {
-  const defaults = mediastore.DefaultMediaStoreOptions
+  const defaults = DefaultMediaStoreOptions
 
   if (await exists(filename)) {
     const jsontext = await Deno.readTextFile(filename)

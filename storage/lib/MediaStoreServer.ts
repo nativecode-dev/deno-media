@@ -13,7 +13,6 @@ export class MediaStoreServer {
 
   async run(): Promise<void> {
     const options = { port: this.options.hosting.endpoint.port || 3000 }
-    console.log('[media-store-server]', options.port)
     await this.application.listen(options)
   }
 }
