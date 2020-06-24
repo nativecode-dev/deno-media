@@ -1,1 +1,1 @@
-import './tests/NodeRegistry_test.ts'
+import './tests/Nodes_test.ts'

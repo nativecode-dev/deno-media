@@ -2,7 +2,7 @@ import { ConnectorOptions, CouchStore, ObjectMerge } from '../deps.ts'
 import { Env, getIP } from '../deps_test.ts'
 
 import { Node } from '../lib/Models/Node.ts'
-import { NodeRegistry } from '../lib/NodeRegistry.ts'
+import { Nodes } from '../lib/Nodes.ts'
 
 const env = new Env({ env: Deno.env.toObject(), prefix: ['test'] })
 const envobj = env.toObject()
@@ -27,8 +27,8 @@ if (await store.exists(DB_NAME)) {
 
 await store.create(DB_NAME)
 
-const collection = await store.collection<Node>(DB_NAME, 'node')
-const client = new NodeRegistry(collection)
+const collection = store.collection<Node>(DB_NAME, 'node')
+const client = new Nodes(collection)
 
 Deno.test('should register node', async () => {
   const ipaddress = await getIP()

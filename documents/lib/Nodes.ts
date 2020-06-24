@@ -11,7 +11,7 @@ function NODE_KEY(src: string | Essentials.DeepPartial<Node>, hostname?: string)
   return [src.name, hostname || src.machine?.hostname].join('_')
 }
 
-export class NodeRegistry {
+export class Nodes {
   constructor(private readonly collection: DocumentCollection<Node>) {}
 
   async register(name: string, hostname: string, ipaddress: string) {
