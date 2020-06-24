@@ -10,7 +10,7 @@ test:
     - deno run --allow-net http://deno.land/x/gh:nativecode-dev:dent/connector/mod_run.ts localhost --port 5672
     - deno run --allow-net http://deno.land/x/gh:nativecode-dev:dent/connector/mod_run.ts localhost --port 6379
     - deno run --allow-env --allow-read --allow-write --unstable http://deno.land/x/gh:nativecode-dev:dent/dent-cli/mod_run.ts
-    - deno test --allow-env --allow-read --allow-net --allow-write
+    - deno test --allow-env --allow-read --allow-net --allow-write --config tsconfig.json
   services:
     - couchdb:2
     - rabbitmq:3-management-alpine
@@ -24,7 +24,7 @@ publish:
   stage: publish
   script:
     - mkdir dist
-    - deno bundle mod.ts dist/mod.ts
+    - deno bundle --config tsconfig.json mod.ts dist/mod.ts
   only:
     - master
   artifacts:
