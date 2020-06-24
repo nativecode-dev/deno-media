@@ -1,4 +1,4 @@
-import { CouchStore } from '../deps.ts'
+import { ConnectorOptions, CouchStore, ObjectMerge } from '../deps.ts'
 import { Env, getIP } from '../deps_test.ts'
 
 import { Node } from '../lib/Models/Node.ts'
@@ -10,7 +10,16 @@ const envobj = env.toObject()
 const DB_NAME = 'test-deno-media'
 const HOSTNAME = Deno.env.get('HOST') || 'localhost'
 
-const store = new CouchStore(envobj.test.couchdb)
+const DEFAULTS: ConnectorOptions = {
+  endpoint: {
+    host: 'localhost',
+    port: 5984,
+    protocol: 'http',
+  },
+  name: 'couchdb',
+}
+
+const store = new CouchStore(ObjectMerge.merge<ConnectorOptions>(DEFAULTS, envobj.test.couchdb))
 
 if (await store.exists(DB_NAME)) {
   await store.delete(DB_NAME)
