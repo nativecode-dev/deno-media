@@ -39,9 +39,11 @@ export class StorageAgent {
         await previous
 
         for await (const mountfile of this.storage.files(mount)) {
+          const existing = await this.context.files.get(this.getFileKey(mountfile))
+
           const transformed = await this.tasks.reduce(
             (previous, task) => previous.then((file) => task.file(file)),
-            Promise.resolve(mountfile),
+            Promise.resolve(existing || mountfile),
           )
 
           try {

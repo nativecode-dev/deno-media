@@ -5,6 +5,10 @@ import { StorageAgentTask } from '../StorageAgentTask.ts'
 
 export class UpdateChecksum implements StorageAgentTask {
   async file(file: MountFile): Promise<MountFile> {
+    if (file.checksum) {
+      return file
+    }
+
     const hash = Checksum.createHash('md5')
     const filename = Path.join(file.path, file.name)
 
