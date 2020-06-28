@@ -6,6 +6,11 @@ export class UpdateGuessit implements StorageAgentTask {
     if (file.guessit === undefined) {
       try {
         const response = await fetch(`https://guessit.nativecode.com/?filename=${file.name}`)
+
+        if (response.ok === false) {
+          throw new Error(response.statusText)
+        }
+
         file.guessit = await response.json()
       } catch (error) {
         console.log(error, file)
