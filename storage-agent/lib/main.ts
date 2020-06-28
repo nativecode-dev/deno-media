@@ -3,7 +3,9 @@ import { Alo, Connectors, Dent } from '../deps.ts'
 import { StorageAgent } from './StorageAgent.ts'
 
 import { StorageManager } from './StorageManager.ts'
+import { UpdateGuessit } from './Tasks/UpdateGuessit.ts'
 import { UpdateChecksum } from './Tasks/UpdateChecksum.ts'
+
 import { StorageAgentTask } from './StorageAgentTask.ts'
 import { StorageAgentTaskToken } from './StorageAgentTask.ts'
 import { StorageAgentContext } from './StorageAgentContext.ts'
@@ -20,7 +22,14 @@ export async function main(options: StorageAgentOptions): Promise<void> {
 
   const store = new Connectors.Couch.CouchStore(options.couchdb)
 
-  const hostname = (Deno.env.get('HOST') || Deno.hostname()).replace(/\./g, '-')
+  const hostname = (
+    Deno.env.get('HOST') ||
+    Deno.hostname()
+      .split('.')
+      .reverse()
+      .reduce((_, current) => current, '')
+  ).replace(/\./g, '-')
+
   const dbname = `agent-${hostname}`
 
   if ((await store.exists(dbname)) === false) {
@@ -35,6 +44,7 @@ export async function main(options: StorageAgentOptions): Promise<void> {
   Alo.container.register<StorageAgentContext>(StorageAgentContext, { useClass: StorageAgentContext })
   Alo.container.register<StorageAgentOptions>(StorageAgentOptionsToken, { useValue: options })
   Alo.container.register<StorageAgentTask>(StorageAgentTaskToken, { useClass: UpdateChecksum })
+  Alo.container.register<StorageAgentTask>(StorageAgentTaskToken, { useClass: UpdateGuessit })
   Alo.container.register<StorageManager>(StorageManager, { useClass: StorageManager })
 
   const scheduler = new Dent.Scheduler()
