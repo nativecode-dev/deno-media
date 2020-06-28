@@ -10,6 +10,7 @@ import { StorageAgentOptions, StorageAgentOptionsToken } from './StorageAgentOpt
 @Alo.Injectable()
 export class StorageAgent {
   private readonly log: Dent.Lincoln
+  private readonly decoder = new TextDecoder()
 
   constructor(
     @Alo.Inject(Dent.LoggerType) logger: Dent.Lincoln,
@@ -32,33 +33,30 @@ export class StorageAgent {
     await all(
       Object.keys(this.options.mounts)
         .filter((name) => this.options.mounts[name].enabled)
-        .map(
-          (name) => async () => {
-            this.log.debug('[scan-mount-start]', name)
+        .map((name) => async () => {
+          this.log.debug('[scan-mount-start]', name)
 
-            const mount = this.options.mounts[name]
+          const mount = this.options.mounts[name]
 
-            for await (const mountfile of this.storage.files(mount)) {
-              const existing = await this.context.files.get(this.getFileKey(mountfile))
+          for await (const mountfile of this.storage.files(mount)) {
+            const existing = await this.context.files.get(this.getFileKey(mountfile))
 
-              const transformed = await this.tasks.reduce(
-                (previous, task) => previous.then((file) => task.file(file)),
-                Promise.resolve(existing || mountfile),
-              )
+            const transformed = await this.tasks.reduce(
+              (previous, task) => previous.then((file) => task.file(file)),
+              Promise.resolve(existing || mountfile),
+            )
 
-              try {
-                await this.update(transformed)
-                this.log.debug(Path.join(transformed.path, transformed.name))
-              } catch (error) {
-                this.log.error(error)
-              }
+            try {
+              await this.update(transformed)
+              this.log.debug(Path.join(transformed.path, transformed.name))
+            } catch (error) {
+              this.log.error(error)
             }
+          }
 
-            this.log.debug('[scan-mount-done]', name)
-          },
-          Promise.resolve(),
-        ),
-      {},
+          this.log.debug('[scan-mount-done]', name)
+        }),
+      { maxInProgress: await this.getCpuCount() },
     )
 
     this.log.debug('[scan-done]')
@@ -72,5 +70,18 @@ export class StorageAgent {
     const filename = filedoc.name.replace(/[\.\_\/\-]/g, '')
     const filepath = filedoc.path.replace(/[\.\_\/\-]/g, '')
     return [filedoc.mount.name, filepath, filename].join('').toLowerCase()
+  }
+
+  private async getCpuCount(): Promise<number> {
+    const cmd = Deno.run({ cmd: ['nproc'], stderr: 'piped', stdout: 'piped' })
+
+    try {
+      const output = await cmd.output()
+      return parseInt(this.decoder.decode(output), 0)
+    } catch {
+      return 4
+    } finally {
+      cmd.close()
+    }
   }
 }
