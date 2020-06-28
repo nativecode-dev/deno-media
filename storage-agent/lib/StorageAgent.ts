@@ -1,4 +1,4 @@
-import { Alo, Dent, Path, all } from '../deps.ts'
+import { Alo, Dent, Path } from '../deps.ts'
 
 import { MountFile } from './MountFile.ts'
 import { StorageManager } from './StorageManager.ts'
@@ -10,7 +10,6 @@ import { StorageAgentOptions, StorageAgentOptionsToken } from './StorageAgentOpt
 @Alo.Injectable()
 export class StorageAgent {
   private readonly log: Dent.Lincoln
-  private readonly decoder = new TextDecoder()
 
   constructor(
     @Alo.Inject(Dent.LoggerType) logger: Dent.Lincoln,
@@ -24,13 +23,13 @@ export class StorageAgent {
   }
 
   async start() {
-    this.scheduler.fromSchedule({ command: () => this.scan(), name: 'scan', schedule: '30s', type: Dent.ScheduleType.every })
+    this.scheduler.fromSchedule({ command: () => this.scan(), name: 'scan', schedule: '5s', type: Dent.ScheduleType.every })
   }
 
   private async scan() {
     this.log.debug('[scan-start]')
 
-    await all(
+    await Dent.Throttle.all(
       Object.keys(this.options.mounts)
         .filter((name) => this.options.mounts[name].enabled)
         .map((name) => async () => {
@@ -56,7 +55,6 @@ export class StorageAgent {
 
           this.log.debug('[scan-mount-done]', name)
         }),
-      { maxInProgress: await this.getCpuCount() },
     )
 
     this.log.debug('[scan-done]')
@@ -70,18 +68,5 @@ export class StorageAgent {
     const filename = filedoc.name.replace(/[\.\_\/\-]/g, '')
     const filepath = filedoc.path.replace(/[\.\_\/\-]/g, '')
     return [filedoc.mount.name, filepath, filename].join('').toLowerCase()
-  }
-
-  private async getCpuCount(): Promise<number> {
-    const cmd = Deno.run({ cmd: ['nproc'], stderr: 'piped', stdout: 'piped' })
-
-    try {
-      const output = await cmd.output()
-      return parseInt(this.decoder.decode(output), 0)
-    } catch {
-      return 4
-    } finally {
-      cmd.close()
-    }
   }
 }

@@ -47,7 +47,13 @@ export class StorageManager {
         continue
       }
 
-      yield { mount, name: entry.name, path: cwd, type: entry.isDirectory ? 'directory' : 'file' }
+      yield {
+        mount,
+        name: entry.name,
+        path: cwd,
+        queued: [],
+        type: entry.isDirectory ? 'directory' : 'file',
+      }
 
       if (entry.isDirectory) {
         const subdir = Path.join(cwd, entry.name)

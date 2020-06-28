@@ -13,6 +13,7 @@ export interface StorageAgentOptions {
   cinemon: Dent.ConnectorOptions
   couchdb: Dent.ConnectorOptions
   mounts: { [key: string]: StorageAgentMount }
+  queue: Dent.ConnectorOptions
 }
 
 export const DefaultStorageAgentOptions: StorageAgentOptions = {
@@ -41,6 +42,18 @@ export const DefaultStorageAgentOptions: StorageAgentOptions = {
       path: Deno.cwd(),
       recurse: true,
     },
+  },
+  queue: {
+    credentials: {
+      password: 'guest',
+      username: 'guest',
+    },
+    endpoint: {
+      host: 'localhost',
+      path: '/',
+      port: 5672,
+    },
+    name: 'queue',
   },
 }
 

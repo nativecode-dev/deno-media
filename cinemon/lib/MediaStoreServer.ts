@@ -1,4 +1,4 @@
-import { Alo, Dent, Documents, all } from '../deps.ts'
+import { Alo, Dent, Documents } from '../deps.ts'
 
 import { ApiArea } from './api/ApiArea.ts'
 import { MediaStore } from './MediaStore.ts'
@@ -100,7 +100,7 @@ export class MediaStoreServer {
         }
       })
 
-      await all(tasks, { maxInProgress: 3 })
+      await Dent.Throttle.all(tasks)
 
       this.log.debug('[radarr]', 'completed')
     } catch (error) {
@@ -141,7 +141,7 @@ export class MediaStoreServer {
         }
       })
 
-      await all(tasks, { maxInProgress: 3 })
+      await Dent.Throttle.all(tasks)
 
       this.log.debug('[sonarr]', 'completed')
     } catch (error) {

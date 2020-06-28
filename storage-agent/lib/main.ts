@@ -1,4 +1,4 @@
-import { Alo, Connectors, Dent } from '../deps.ts'
+import { Alo, Connectors, Dent, Messages, Queues } from '../deps.ts'
 
 import { StorageAgent } from './StorageAgent.ts'
 
@@ -6,6 +6,7 @@ import { StorageManager } from './StorageManager.ts'
 import { UpdateGuessit } from './Tasks/UpdateGuessit.ts'
 import { UpdateChecksum } from './Tasks/UpdateChecksum.ts'
 
+import { MountFile } from './MountFile.ts'
 import { StorageAgentTask } from './StorageAgentTask.ts'
 import { StorageAgentTaskToken } from './StorageAgentTask.ts'
 import { StorageAgentContext } from './StorageAgentContext.ts'
@@ -18,7 +19,7 @@ export async function main(options: StorageAgentOptions): Promise<void> {
   Dent.LincolnLogDebug.observe(logger)
 
   logger.debug('[storage-agent]', 'register')
-  logger.debug('[configuration]', options)
+  logger.debug('[configuration]', options.cinemon, options.mounts.cwd.ignore)
 
   const store = new Connectors.Couch.CouchStore(options.couchdb)
 

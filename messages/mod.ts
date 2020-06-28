@@ -1,2 +1,6 @@
+export * from './lib/IdentifyFile.ts'
+export * from './lib/IdentifyFileSelected.ts'
+export * from './lib/IdentifyFileSelection.ts'
+export * from './lib/IdentifyFileSelections.ts'
 export * from './lib/RemoteTask.ts'
 export * from './lib/RemoteTaskCompleted.ts'
