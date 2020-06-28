@@ -9,4 +9,5 @@ export * as Documents from '../documents/mod.ts'
 export * as Messages from '../messages/mod.ts'
 
 export { exists } from 'https://deno.land/std@0.59.0/fs/exists.ts'
+export { all } from 'https://cdn.pika.dev/promise-parallel-throttle@^3.3.0'
 export { Scheduler, ScheduleType } from 'https://deno.land/x/gh:nativecode-dev:dent/scheduler/mod.ts'

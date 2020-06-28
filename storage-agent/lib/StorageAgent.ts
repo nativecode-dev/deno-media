@@ -1,4 +1,4 @@
-import { Alo, Dent, Path } from '../deps.ts'
+import { Alo, Dent, Path, all } from '../deps.ts'
 
 import { MountFile } from './MountFile.ts'
 import { StorageManager } from './StorageManager.ts'
@@ -29,33 +29,37 @@ export class StorageAgent {
   private async scan() {
     this.log.debug('[scan-start]')
 
-    await Object.keys(this.options.mounts)
-      .filter((name) => this.options.mounts[name].enabled)
-      .reduce<Promise<void>>(async (previous, name) => {
-        this.log.debug('[scan-mount-start]', name)
+    await all(
+      Object.keys(this.options.mounts)
+        .filter((name) => this.options.mounts[name].enabled)
+        .map(
+          (name) => async () => {
+            this.log.debug('[scan-mount-start]', name)
 
-        const mount = this.options.mounts[name]
+            const mount = this.options.mounts[name]
 
-        await previous
+            for await (const mountfile of this.storage.files(mount)) {
+              const existing = await this.context.files.get(this.getFileKey(mountfile))
 
-        for await (const mountfile of this.storage.files(mount)) {
-          const existing = await this.context.files.get(this.getFileKey(mountfile))
+              const transformed = await this.tasks.reduce(
+                (previous, task) => previous.then((file) => task.file(file)),
+                Promise.resolve(existing || mountfile),
+              )
 
-          const transformed = await this.tasks.reduce(
-            (previous, task) => previous.then((file) => task.file(file)),
-            Promise.resolve(existing || mountfile),
-          )
+              try {
+                await this.update(transformed)
+                this.log.debug(Path.join(transformed.path, transformed.name))
+              } catch (error) {
+                this.log.error(error)
+              }
+            }
 
-          try {
-            await this.update(transformed)
-            this.log.debug(Path.join(transformed.path, transformed.name))
-          } catch (error) {
-            this.log.error(error)
-          }
-        }
-
-        this.log.debug('[scan-mount-done]', name)
-      }, Promise.resolve())
+            this.log.debug('[scan-mount-done]', name)
+          },
+          Promise.resolve(),
+        ),
+      {},
+    )
 
     this.log.debug('[scan-done]')
   }
