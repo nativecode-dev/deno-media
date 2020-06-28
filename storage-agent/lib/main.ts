@@ -22,15 +22,7 @@ export async function main(options: StorageAgentOptions): Promise<void> {
   logger.debug('[configuration]', options.cinemon, options.mounts.cwd.ignore)
 
   const store = new Connectors.Couch.CouchStore(options.couchdb)
-
-  const hostname = (
-    Deno.env.get('HOST') ||
-    Deno.hostname()
-      .split('.')
-      .reverse()
-      .reduce((_, current) => current, '')
-  ).replace(/\./g, '-')
-
+  const hostname = Dent.getHost()
   const dbname = `agent-${hostname}`
 
   if ((await store.exists(dbname)) === false) {

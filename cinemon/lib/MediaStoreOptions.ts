@@ -13,7 +13,7 @@ export const DefaultMediaStoreOptions: MediaStoreOptions = {
   database: { name: 'media-store' },
   hosting: {
     endpoint: {
-      host: 'localhost',
+      host: Dent.getHost(),
       port: 3000,
     },
     name: 'media-store',

@@ -1,4 +1,4 @@
-import { DocumentCollection, Essentials, differenceInDays } from '../deps.ts'
+import { DocumentCollection, Essentials, ObjectMerge, differenceInDays } from '../deps.ts'
 
 import { Node } from './Models/Node.ts'
 import { assertEquals } from '../deps_test.ts'
@@ -18,8 +18,8 @@ export class Nodes {
     const node = await this.collection.get(NODE_KEY(name, hostname))
 
     if (node) {
-      node.pulse = new Date()
-      await this.collection.update(node, NODE_KEY)
+      const updated = ObjectMerge.merge(node, { pulse: new Date() })
+      await this.collection.update(updated, NODE_KEY)
     }
   }
 
