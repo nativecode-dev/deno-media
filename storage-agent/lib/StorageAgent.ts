@@ -1,4 +1,4 @@
-import { Alo, Dent } from '../deps.ts'
+import { Alo, Dent, Path } from '../deps.ts'
 
 import { MountFile } from './MountFile.ts'
 import { StorageManager } from './StorageManager.ts'
@@ -46,6 +46,7 @@ export class StorageAgent {
 
           try {
             await this.update(transformed)
+            this.log.debug(Path.join(transformed.path, transformed.name))
           } catch (error) {
             this.log.error(error)
           }
