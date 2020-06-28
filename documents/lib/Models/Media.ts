@@ -9,7 +9,7 @@ export enum MediaType {
 
 export interface Media extends Document {
   data: RecordData
-  tmdb_id: number
+  imdb_id: string
   title: string
   type: MediaType
   year?: number

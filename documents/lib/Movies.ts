@@ -1,20 +1,24 @@
-import { DocumentCollection, Essentials, ObjectMerge } from '../deps.ts'
+import { DocumentCollection, Essentials } from '../deps.ts'
 
-import { MediaMovie } from './Models/Media.ts'
+import { MediaMovie, MediaType } from './Models/Media.ts'
 
 function NODE_KEY(document: Essentials.DeepPartial<MediaMovie>): string {
-  return [document.type, document.tmdb_id].join('_')
+  return [MediaType.movie, document.imdb_id].join('_')
 }
 
 export class Movies {
   constructor(private readonly collection: DocumentCollection<MediaMovie>) {}
 
-  async get(id: string) {
-    return await this.collection.get(id)
+  async get(imdb_id: string) {
+    try {
+      return await this.collection.get(NODE_KEY({ imdb_id }))
+    } catch (error) {
+      console.log(imdb_id)
+      throw error
+    }
   }
 
   async update(media: Essentials.DeepPartial<MediaMovie>) {
-    const document = ObjectMerge.merge<MediaMovie>(media)
-    return await this.collection.update(document, NODE_KEY)
+    return await this.collection.update(media, NODE_KEY)
   }
 }

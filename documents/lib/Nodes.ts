@@ -14,6 +14,15 @@ function NODE_KEY(src: string | Essentials.DeepPartial<Node>, hostname?: string)
 export class Nodes {
   constructor(private readonly collection: DocumentCollection<Node>) {}
 
+  async checkin(name: string, hostname: string): Promise<void> {
+    const node = await this.collection.get(NODE_KEY(name, hostname))
+
+    if (node) {
+      node.pulse = new Date()
+      await this.collection.update(node, NODE_KEY)
+    }
+  }
+
   async register(name: string, hostname: string, ipaddress: string) {
     const document = { machine: { hostname, ipaddress }, name, pulse: new Date() }
     const response = await this.collection.update(document, NODE_KEY)
@@ -21,10 +30,17 @@ export class Nodes {
     assertEquals(response.name, name)
   }
 
+  async registered(name: string, hostname: string): Promise<boolean> {
+    return (await this.collection.get(NODE_KEY(name, hostname))) !== null
+  }
+
   async unregister(name: string, hostname: string) {
     const key = NODE_KEY(name, hostname)
     const node = await this.collection.get(key)
-    return await this.collection.delete(node._id!, node._rev)
+
+    if (node) {
+      return await this.collection.delete(node._id!, node._rev)
+    }
   }
 
   async cleanup(days: number = 5) {

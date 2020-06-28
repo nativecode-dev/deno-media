@@ -10,7 +10,13 @@ import {
 } from '../mod.ts'
 
 export async function main(options: MediaStoreOptions): Promise<void> {
-  console.log('[media-store-server] register')
+  const logger = Dent.createLogger('media-store')
+  logger.intercept(Dent.createScrubTransformer(['apikey', 'api_key', 'password']))
+  Dent.LincolnLogDebug.observe(logger)
+
+  logger.debug('[storage] register')
+  logger.debug('[configuration]', options)
+
   const queue: Dent.QueueOptions = { subject: options.database.name }
   const factory = new Dent.PublisherFactory<MediaStoreMessage>(options.connections.queue, queue)
   const store = new MediaStore(options)
@@ -19,16 +25,20 @@ export async function main(options: MediaStoreOptions): Promise<void> {
     await store.couchdb.create(options.database.name)
   }
 
-  Alo.container.registerInstance(MediaStoreOptionsToken, options)
   Alo.container.register(MediaStore, { useValue: store })
   Alo.container.register(MediaStoreServer, MediaStoreServer)
   Alo.container.register<Dent.PublisherFactory<MediaStoreMessage>>(MediaStoreMessageToken, { useValue: factory })
+
+  Alo.container.registerInstance<MediaStoreOptions>(MediaStoreOptionsToken, options)
+  Alo.container.registerInstance<Dent.Lincoln>(Dent.LoggerType, logger)
+
+  Alo.container.registerSingleton(Dent.Scheduler, Dent.Scheduler)
 
   Alo.container.register<Documents.DataContext>(Documents.DataContext, {
     useValue: new Documents.DataContext(options.database.name, store.couchdb),
   })
 
   const server = Alo.container.resolve(MediaStoreServer)
-  console.log('[media-store-server] resolved')
+  logger.debug('[media-store-server] resolved')
   return server.run()
 }

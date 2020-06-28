@@ -1,11 +1,12 @@
-import * as path from 'https://deno.land/std@0.58.0/path/mod.ts'
+import * as path from 'https://deno.land/std@0.59.0/path/mod.ts'
 
-import { exists } from 'https://deno.land/std@0.58.0/fs/exists.ts'
-import { parse } from 'https://deno.land/std@0.58.0/flags/mod.ts'
+import { exists } from 'https://deno.land/std@0.59.0/fs/exists.ts'
+import { parse } from 'https://deno.land/std@0.59.0/flags/mod.ts'
 
-import { Dent } from './storage/deps.ts'
+import { Dent } from './cinemon/deps.ts'
 
-import { DefaultMediaStoreOptions, MediaStoreOptions, main } from './storage/mod.ts'
+import * as Cinemon from './cinemon/mod.ts'
+import * as Storage from './storage-agent/mod.ts'
 
 interface ProgramArgs {
   _: string[]
@@ -13,8 +14,9 @@ interface ProgramArgs {
 
 const ARGS: ProgramArgs = parse(Deno.args) as ProgramArgs
 
-const EXECUTABLES: { [key: string]: (config: MediaStoreOptions) => Promise<void> | void } = {
-  store: main,
+const EXECUTABLES: { [key: string]: { config: any; main: (config: any) => Promise<void> | void } } = {
+  cinemon: { config: Cinemon.DefaultMediaStoreOptions, main: Cinemon.main },
+  'storage-agent': { config: Storage.DefaultStorageAgentOptions, main: Storage.main },
 }
 
 const CONFIG_DIR = path.join(Deno.cwd(), '.config')
@@ -23,24 +25,26 @@ if ((await exists(CONFIG_DIR)) === false) {
   await Deno.mkdir(CONFIG_DIR, { recursive: true })
 }
 
-async function configuration(filename: string): Promise<[string, MediaStoreOptions]> {
-  const defaults = DefaultMediaStoreOptions
+async function configuration(name: string, filename: string): Promise<[string, any]> {
+  const defaults = EXECUTABLES[name].config
 
   if (await exists(filename)) {
     const jsontext = await Deno.readTextFile(filename)
     const json = JSON.parse(jsontext)
-    return [filename, Dent.ObjectMerge.merge<MediaStoreOptions>({}, defaults, json)]
+    return [filename, Dent.ObjectMerge.mergex({ dedupe: true }, defaults, json)]
   }
 
-  return [filename, Dent.ObjectMerge.merge<MediaStoreOptions>({}, defaults)]
+  return [filename, Dent.ObjectMerge.mergex({ dedupe: true }, defaults)]
 }
 
-const [filename, config] = await configuration(path.join(Deno.cwd(), '.config', 'conf.media-store.json'))
-await Deno.writeTextFile(filename, JSON.stringify(config, null, 2))
-
 await Promise.all(
-  ARGS._.map((name) => {
+  ARGS._.map(async (name) => {
+    const executable = EXECUTABLES[name]
+
+    const [filename, config] = await configuration(name, path.join(Deno.cwd(), '.config', `conf.${name}.json`))
+    await Deno.writeTextFile(filename, JSON.stringify(config, null, 2))
+
     console.log('running', name)
-    return EXECUTABLES[name](config)
+    return executable.main(config)
   }),
 )
