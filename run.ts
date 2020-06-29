@@ -41,7 +41,7 @@ await Promise.all(
   ARGS._.map(async (name) => {
     const executable = EXECUTABLES[name]
 
-    const [filename, config] = await configuration(name, path.join(Deno.cwd(), '.config', `conf.${name}.json`))
+    const [filename, config] = await configuration(name, path.join(Deno.cwd(), '.config', `${name}.json`))
     await Deno.writeTextFile(filename, JSON.stringify(config, null, 2))
 
     console.log('running', name)
