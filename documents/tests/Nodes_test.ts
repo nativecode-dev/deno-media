@@ -1,5 +1,5 @@
-import { ConnectorOptions, CouchStore, ObjectMerge } from '../deps.ts'
-import { Env, getIP } from '../deps_test.ts'
+import { Connectors, Dent } from '../deps.ts'
+import { Env, assertNotEquals } from '../deps_test.ts'
 
 import { Node } from '../lib/Models/Node.ts'
 import { Nodes } from '../lib/Nodes.ts'
@@ -10,7 +10,7 @@ const envobj = env.toObject()
 const DB_NAME = 'test-deno-media'
 const HOSTNAME = Deno.env.get('HOST') || 'localhost'
 
-const DEFAULTS: ConnectorOptions = {
+const DEFAULTS: Dent.ConnectorOptions = {
   endpoint: {
     host: 'localhost',
     port: 5984,
@@ -19,7 +19,7 @@ const DEFAULTS: ConnectorOptions = {
   name: 'couchdb',
 }
 
-const store = new CouchStore(ObjectMerge.merge<ConnectorOptions>(DEFAULTS, envobj.test.couchdb))
+const store = new Connectors.Couch.CouchStore(Dent.ObjectMerge.merge<Dent.ConnectorOptions>(DEFAULTS, envobj.test.couchdb))
 
 if (await store.exists(DB_NAME)) {
   await store.delete(DB_NAME)
@@ -31,8 +31,11 @@ const collection = store.collection<Node>(DB_NAME, 'node')
 const client = new Nodes(collection)
 
 Deno.test('should register node', async () => {
-  const ipaddress = await getIP()
-  await client.register('test', HOSTNAME, ipaddress)
+  await client.register('test', HOSTNAME)
+})
+
+Deno.test('should get nodes', async () => {
+  assertNotEquals(await client.all(), [])
 })
 
 Deno.test('should unregister node', async () => {

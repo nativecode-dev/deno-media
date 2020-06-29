@@ -1,41 +1,47 @@
-import { DocumentCollection, Essentials, ObjectMerge, differenceInDays } from '../deps.ts'
+import { Dent, differenceInDays } from '../deps.ts'
 
 import { Node } from './Models/Node.ts'
-import { assertEquals } from '../deps_test.ts'
 
-function NODE_KEY(src: string | Essentials.DeepPartial<Node>, hostname?: string): string {
+function NODE_KEY(src: string | Dent.Essentials.DeepPartial<Node>, hostname?: string): string {
   if (typeof src === 'string') {
-    return [src, hostname].join('_')
+    return [src, hostname].join('-')
   }
 
-  return [src.name, hostname || src.machine?.hostname].join('_')
+  return [src.name, hostname || src.machine?.host].join('-')
 }
 
 export class Nodes {
-  constructor(private readonly collection: DocumentCollection<Node>) {}
+  constructor(private readonly collection: Dent.DocumentCollection<Node>) {}
 
-  async checkin(name: string, hostname: string): Promise<void> {
-    const node = await this.collection.get(NODE_KEY(name, hostname))
+  all(): Promise<Node[]> {
+    return this.collection.all()
+  }
+
+  async checkin(name: string, hostname: string, ipaddress: string): Promise<void> {
+    const { host, domain } = this.hostparts(hostname)
+    const node = await this.collection.get(NODE_KEY(name, host))
 
     if (node) {
-      const updated = ObjectMerge.merge(node, { pulse: new Date() })
+      const required = { machine: { domain, host, ipaddress }, pulse: new Date() }
+      const updated = Dent.ObjectMerge.merge<Node>(node, required)
       await this.collection.update(updated, NODE_KEY)
     }
   }
 
   async register(name: string, hostname: string, ipaddress: string) {
-    const document = { machine: { hostname, ipaddress }, name, pulse: new Date() }
-    const response = await this.collection.update(document, NODE_KEY)
-    assertEquals(response.machine.hostname, hostname)
-    assertEquals(response.name, name)
+    const { domain, host } = this.hostparts(hostname)
+    const document = { machine: { domain, host, ipaddress }, name, pulse: new Date() }
+    await this.collection.update(document, NODE_KEY)
   }
 
   async registered(name: string, hostname: string): Promise<boolean> {
-    return (await this.collection.get(NODE_KEY(name, hostname))) !== null
+    const { host } = this.hostparts(hostname)
+    return (await this.collection.get(NODE_KEY(name, host))) !== null
   }
 
   async unregister(name: string, hostname: string) {
-    const key = NODE_KEY(name, hostname)
+    const { host } = this.hostparts(hostname)
+    const key = NODE_KEY(name, host)
     const node = await this.collection.get(key)
 
     if (node) {
@@ -44,16 +50,20 @@ export class Nodes {
   }
 
   async cleanup(days: number = 5) {
-    const nodes = await this.collection.all()
+    const nodes = await this.all()
 
     const tasks = nodes.map(async (node) => {
       const diffdays = differenceInDays(node.pulse, new Date())
 
       if (diffdays > days) {
-        await this.unregister(node.name, node.machine.hostname)
+        await this.unregister(node.name, node.machine.host)
       }
     })
 
     await Promise.all(tasks)
+  }
+
+  private hostparts(hostname: string): { host: string; domain: string } {
+    return { domain: hostname.split('.').slice(1).join('.'), host: hostname.split('.').slice(0, 1).join('') }
   }
 }

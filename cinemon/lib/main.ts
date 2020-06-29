@@ -1,13 +1,16 @@
 import { Dent, Documents, Alo } from '../deps.ts'
 
-import { MediaStore, MediaStoreServer, MediaStoreOptions, MediaStoreOptionsToken } from '../mod.ts'
+import { MediaStore } from './MediaStore.ts'
+import { MediaStoreServer } from './MediaStoreServer.ts'
+import { LogMiddleware } from './Middlewares/LogMiddleware.ts'
+import { MediaStoreOptions, MediaStoreOptionsToken } from './MediaStoreOptions.ts'
 
 export async function main(options: MediaStoreOptions): Promise<void> {
-  const logger = Dent.createLogger('media-store')
+  const logger = Dent.createLogger('cinemon')
   logger.intercept(Dent.createScrubTransformer(['apikey', 'api_key', 'password']))
   Dent.LincolnLogDebug.observe(logger)
 
-  logger.debug('[storage] register')
+  logger.debug('[cinemon] register')
   logger.debug('[configuration]', options)
 
   const store = new MediaStore(options)
@@ -20,8 +23,9 @@ export async function main(options: MediaStoreOptions): Promise<void> {
     useFactory: () => new Dent.PublisherFactory(options.connections.queue),
   })
 
-  Alo.container.register(MediaStore, { useValue: store })
-  Alo.container.register(MediaStoreServer, MediaStoreServer)
+  Alo.container.register<MediaStore>(MediaStore, { useValue: store })
+  Alo.container.register<MediaStoreServer>(MediaStoreServer, MediaStoreServer)
+  Alo.container.register<LogMiddleware>(LogMiddleware, LogMiddleware)
 
   Alo.container.registerInstance<MediaStoreOptions>(MediaStoreOptionsToken, options)
   Alo.container.registerInstance<Dent.Lincoln>(Dent.LoggerType, logger)

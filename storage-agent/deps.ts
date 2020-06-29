@@ -10,4 +10,5 @@ export * as Messages from '../messages/mod.ts'
 export * as Queues from '../queues/mod.ts'
 
 export { exists } from 'https://deno.land/std@0.59.0/fs/exists.ts'
+export { CinemonClient } from '../rest-cinemon/mod.ts'
 export { Scheduler, ScheduleType } from 'https://deno.land/x/gh:nativecode-dev:dent/scheduler/mod.ts'

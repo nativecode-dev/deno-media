@@ -1,0 +1,17 @@
+{
+  "name": "storage-agent",
+  "script": "deno run -A -c tsconfig.json --unstable run.ts storage-agent",
+  "watch": [
+    ".config",
+    "documents",
+    "messages",
+    "queues",
+    "storage-agent"
+  ],
+  "env": {
+    "DEBUG": "*"
+  },
+  "env_prod": {
+    "DEBUG": "storage-agent:*"
+  }
+}

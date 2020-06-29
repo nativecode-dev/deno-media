@@ -1,4 +1,4 @@
-import { Document } from '../../deps.ts'
+import { Dent } from '../../deps.ts'
 
 import { RecordData } from './Types/RecordData.ts'
 
@@ -7,7 +7,7 @@ export enum MediaType {
   series = 'SERIES',
 }
 
-export interface Media extends Document {
+export interface Media extends Dent.Document {
   data: RecordData
   imdb_id: string
   title: string

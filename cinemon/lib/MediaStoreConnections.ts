@@ -15,6 +15,7 @@ export const DefaultMediaStoreConnections: MediaStoreConnections = Dent.ObjectMe
       endpoint: {
         host: 'localhost',
         port: 5984,
+        protocol: 'http'
       },
       name: 'couchdb',
     },

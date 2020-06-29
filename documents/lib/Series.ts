@@ -1,13 +1,13 @@
-import { DocumentCollection, Essentials } from '../deps.ts'
+import { Dent } from '../deps.ts'
 
 import { MediaSeries, MediaType } from './Models/Media.ts'
 
-function NODE_KEY(document: Essentials.DeepPartial<MediaSeries>): string {
+function NODE_KEY(document: Dent.Essentials.DeepPartial<MediaSeries>): string {
   return [MediaType.series, document.imdb_id].join('_')
 }
 
 export class Series {
-  constructor(private readonly collection: DocumentCollection<MediaSeries>) {}
+  constructor(private readonly collection: Dent.DocumentCollection<MediaSeries>) {}
 
   async get(imdb_id: string) {
     try {
@@ -18,7 +18,7 @@ export class Series {
     }
   }
 
-  async update(media: Essentials.DeepPartial<MediaSeries>) {
+  async update(media: Dent.Essentials.DeepPartial<MediaSeries>) {
     return await this.collection.update(media, NODE_KEY)
   }
 }

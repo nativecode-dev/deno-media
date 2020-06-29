@@ -1,0 +1,17 @@
+{
+  "name": "cinemon",
+  "script": "deno run -A -c tsconfig.json --unstable run.ts cinemon",
+  "watch": [
+    ".config",
+    "cinemon",
+    "documents",
+    "messages",
+    "queues"
+  ],
+  "env": {
+    "DEBUG": "*"
+  },
+  "env_prod": {
+    "DEBUG": "cinemon:*"
+  }
+}

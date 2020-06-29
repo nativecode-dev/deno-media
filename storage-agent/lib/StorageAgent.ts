@@ -1,4 +1,4 @@
-import { Alo, Dent, Path } from '../deps.ts'
+import { Alo, CinemonClient, Dent, Path } from '../deps.ts'
 
 import { MountFile } from './MountFile.ts'
 import { StorageManager } from './StorageManager.ts'
@@ -17,13 +17,22 @@ export class StorageAgent {
     @Alo.Inject(StorageAgentContext) private readonly context: StorageAgentContext,
     @Alo.Inject(StorageAgentOptionsToken) private readonly options: StorageAgentOptions,
     @Alo.Inject(StorageManager) private readonly storage: StorageManager,
+    @Alo.Inject(CinemonClient) private readonly cinemon: CinemonClient,
     @Alo.InjectAll(StorageAgentTaskToken) private readonly tasks: StorageAgentTask[],
   ) {
     this.log = logger.extend('storage-agent')
   }
 
   async start() {
-    this.scheduler.fromSchedule({ command: () => this.scan(), name: 'scan', schedule: '5s', type: Dent.ScheduleType.every })
+    this.scheduler.fromSchedule({ command: () => this.checkin(), name: 'heartbeat', schedule: '15s', type: Dent.ScheduleType.every })
+    this.scheduler.fromSchedule({ command: () => this.scan(), name: 'scan', schedule: '30m', type: Dent.ScheduleType.every })
+  }
+
+  private async checkin() {
+    this.log.debug('[checkin]')
+    const hostname = Dent.SysInfo.hostname(true)
+    const ipaddress = (await Dent.SysInfo.ip_private()) || (await Dent.SysInfo.ip_public())
+    await this.cinemon.nodes.checkin(this.options.type, hostname, ipaddress)
   }
 
   private async scan() {
@@ -67,6 +76,6 @@ export class StorageAgent {
   private getFileKey(filedoc: MountFile): string {
     const filename = filedoc.name.replace(/[\.\_\/\-]/g, '')
     const filepath = filedoc.path.replace(/[\.\_\/\-]/g, '')
-    return [filedoc.mount.name, filepath, filename].join('').toLowerCase()
+    return [filedoc.mount.name, filepath, filename].join('-').toLowerCase()
   }
 }

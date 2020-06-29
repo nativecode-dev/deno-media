@@ -1,11 +1,12 @@
-import { Document } from '../../deps.ts'
+import { Dent } from '../../deps.ts'
 
 export interface Machine {
-  hostname: string
+  domain: string
+  host: string
   ipaddress: string
 }
 
-export interface Node extends Document {
+export interface Node extends Dent.Document {
   machine: Machine
   name: string
   pulse: Date

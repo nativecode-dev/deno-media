@@ -1,7 +1,7 @@
 import { Alo } from '../../deps.ts'
 
 import { HomeController } from './Controllers/HomeController.ts'
-import { MovieController } from './Controllers/MovieController.ts'
+import { NodeController } from './Controllers/NodeController.ts'
 
-@Alo.Area({ controllers: [HomeController, MovieController] })
+@Alo.Area({ controllers: [HomeController, NodeController] })
 export class ApiArea {}
