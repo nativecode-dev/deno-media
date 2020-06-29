@@ -21,7 +21,7 @@ export async function main(options: StorageAgentOptions): Promise<void> {
   logger.debug('[configuration]', options)
 
   const store = new Connectors.Couch.CouchStore(options.couchdb)
-  const dbname = `agent-${options.hostname}`
+  const dbname = `cinemon-agent-${options.hostname}`
 
   if ((await store.exists(dbname)) === false) {
     await store.create(dbname)

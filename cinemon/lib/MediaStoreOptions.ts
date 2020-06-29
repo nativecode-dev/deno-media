@@ -11,7 +11,7 @@ export interface MediaStoreOptions {
 
 export const DefaultMediaStoreOptions: MediaStoreOptions = {
   connections: DefaultMediaStoreConnections,
-  database: { name: 'media-store' },
+  database: { name: 'cinemon' },
   hosting: {
     endpoint: {
       host: Dent.SysInfo.hostname(),

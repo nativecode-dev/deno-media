@@ -40,8 +40,17 @@ async function configuration(name: string, filename: string): Promise<[string, a
 await Promise.all(
   ARGS._.map(async (name) => {
     const executable = EXECUTABLES[name]
+    const defaultpath = path.join(Deno.cwd(), '.config', `${name}.json`)
+    const paths = [defaultpath, path.join(Deno.cwd(), '.config', `conf.${name}.json`)]
 
-    const [filename, config] = await configuration(name, path.join(Deno.cwd(), '.config', `${name}.json`))
+    const fullpath = await paths.reduce<Promise<string>>(async (result, current) => {
+      if (await exists(current)) {
+        return current
+      }
+      return result
+    }, Promise.resolve(defaultpath))
+
+    const [filename, config] = await configuration(name, fullpath)
     await Deno.writeTextFile(filename, JSON.stringify(config, null, 2))
 
     console.log('running', name)
