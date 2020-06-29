@@ -37,6 +37,6 @@ export async function main(options: MediaStoreOptions): Promise<void> {
   })
 
   const server = Alo.container.resolve(MediaStoreServer)
-  logger.debug('[media-store-server] resolved')
+  logger.debug('[cinemon-server] resolved')
   return server.run()
 }

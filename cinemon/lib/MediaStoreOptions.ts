@@ -6,6 +6,7 @@ export interface MediaStoreOptions {
   connections: MediaStoreConnections
   database: { name: string }
   hosting: Dent.ConnectorOptions
+  type: string
 }
 
 export const DefaultMediaStoreOptions: MediaStoreOptions = {
@@ -16,8 +17,9 @@ export const DefaultMediaStoreOptions: MediaStoreOptions = {
       host: Dent.SysInfo.hostname(),
       port: 3000,
     },
-    name: 'media-store',
+    name: 'cinemon',
   },
+  type: 'cinemon',
 }
 
 export const MediaStoreOptionsToken: symbol = Symbol('MediaStoreOptions')
