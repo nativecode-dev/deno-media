@@ -1,0 +1,12 @@
+{
+  "name": "cinemon-web",
+  "cwd": "cinemon-web",
+  "script": "npm run start --watch",
+  "watch": [],
+  "env": {
+    "DEBUG": "*"
+  },
+  "env_prod": {
+    "DEBUG": "cinemon-web:*"
+  }
+}

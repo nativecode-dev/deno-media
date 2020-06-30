@@ -1,16 +1,13 @@
 import { Alo, Dent, Path } from '../deps.ts'
 
 import { MountFile } from './MountFile.ts'
-import { StorageAgentOptions, StorageAgentOptionsToken, StorageAgentMount } from './StorageAgentOptions.ts'
+import { StorageAgentMount } from './StorageAgentOptions.ts'
 
 @Alo.Injectable()
 export class StorageManager {
   private readonly log: Dent.Lincoln
 
-  constructor(
-    @Alo.Inject(Dent.LoggerType) logger: Dent.Lincoln,
-    @Alo.Inject(StorageAgentOptionsToken) private readonly options: StorageAgentOptions,
-  ) {
+  constructor(@Alo.Inject(Dent.LoggerType) logger: Dent.Lincoln) {
     this.log = logger.extend('storage-manager')
   }
 

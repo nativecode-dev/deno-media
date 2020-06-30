@@ -13,11 +13,10 @@ import { DocumentStoreToken, DatabaseNameToken } from './Tokens.ts'
 import { StorageAgentOptions, StorageAgentOptionsToken } from './StorageAgentOptions.ts'
 
 export async function main(options: StorageAgentOptions): Promise<void> {
-  const logger = Dent.createLogger('storage-agent')
+  const logger = Dent.createLogger(options.type)
   logger.intercept(Dent.createScrubTransformer(['apikey', 'api_key', 'password']))
   Dent.LincolnLogDebug.observe(logger)
 
-  logger.debug('[storage-agent]', 'register')
   logger.debug('[configuration]', options)
 
   const store = new Connectors.Couch.CouchStore(options.couchdb)
