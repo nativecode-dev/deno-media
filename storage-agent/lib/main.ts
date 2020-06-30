@@ -31,7 +31,6 @@ export async function main(options: StorageAgentOptions): Promise<void> {
   Alo.container.register<CinemonClient>(CinemonClient, { useFactory: () => new CinemonClient({ connection: options.cinemon }) })
   Alo.container.register<Dent.DocumentStore>(DocumentStoreToken, { useValue: store })
   Alo.container.register<Dent.Lincoln>(Dent.LoggerType, { useValue: logger })
-
   Alo.container.register<StorageAgent>(StorageAgent, { useClass: StorageAgent })
   Alo.container.register<StorageAgentContext>(StorageAgentContext, { useClass: StorageAgentContext })
   Alo.container.register<StorageAgentOptions>(StorageAgentOptionsToken, { useValue: options })

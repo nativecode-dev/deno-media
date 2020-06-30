@@ -39,7 +39,7 @@ export class MediaStoreServer {
         await Promise.all([this.syncRadarr(), this.syncSonarr()])
       },
       name: 'sync',
-      schedule: '00 15 30 45',
+      schedule: '10m',
       type: Dent.ScheduleType.every,
     })
   }
