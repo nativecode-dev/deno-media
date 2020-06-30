@@ -1,4 +1,4 @@
-import { Alo, CinemonClient, Dent, Path } from '../deps.ts'
+import { Alo, BError, CinemonClient, Dent, Path } from '../deps.ts'
 
 import { MountFile } from './MountFile.ts'
 import { StorageManager } from './StorageManager.ts'
@@ -70,7 +70,11 @@ export class StorageAgent {
   }
 
   private async update(file: MountFile): Promise<void> {
-    await this.context.files.update(file, (filedoc) => this.getFileKey(filedoc))
+    try {
+      await this.context.files.update(file, (filedoc) => this.getFileKey(filedoc))
+    } catch (error) {
+      throw new BError('update-error', error)
+    }
   }
 
   private getFileKey(filedoc: MountFile): string {
