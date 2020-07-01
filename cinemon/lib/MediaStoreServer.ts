@@ -23,14 +23,18 @@ export class MediaStoreServer {
   }
 
   async run(): Promise<void> {
-    this.application.error((context: Alo.Context<any>, error: Error) => {
-      context.response.result = Alo.Content('This page unprocessed error', (error as Alo.HttpError).httpCode || 500)
-      context.response.setImmediately()
-      this.log.error(error, context)
-    })
+    try {
+      this.application.error((context: Alo.Context<any>, error: Error) => {
+        context.response.result = Alo.Content('This page unprocessed error', (error as Alo.HttpError).httpCode || 500)
+        context.response.setImmediately()
+        this.log.error(error, context)
+      })
 
-    await this.createJobs()
-    await this.application.listen({ port: this.options.hosting.endpoint.port || 3000 })
+      await this.createJobs()
+      await this.application.listen({ port: this.options.hosting.endpoint.port || 3000 })
+    } catch (error) {
+      this.log.error(error)
+    }
   }
 
   private async createJobs() {
@@ -53,7 +57,7 @@ export class MediaStoreServer {
         .filter((x) => x.imdbId !== '')
         .filter((x) => x.year !== 0)
 
-      this.log.debug('[radarr-start]', movies.length)
+      this.log.debug('[radarr-start]', { count: movies.length })
 
       const tasks = movies.map((movie) => {
         return async () => {
@@ -72,6 +76,8 @@ export class MediaStoreServer {
               type: Documents.MediaType.movie,
               year: movie.year,
             })
+
+            this.log.info('[radarr-sync]', { movie: movie.title })
           } catch (error) {
             this.log.error(error, movie.title)
           }
@@ -95,7 +101,7 @@ export class MediaStoreServer {
         .filter((x) => x.imdbId !== '')
         .filter((x) => x.year !== 0)
 
-      this.log.debug('[sonarr-start]', shows.length)
+      this.log.debug('[sonarr-start]', { content: shows.length })
 
       const tasks = shows.map((series) => {
         return async () => {
@@ -113,6 +119,8 @@ export class MediaStoreServer {
               type: Documents.MediaType.series,
               year: series.year,
             })
+
+            this.log.info('[sonarr-sync]', { series: series.title })
           } catch (error) {
             this.log.error(error, series.title)
           }

@@ -57,35 +57,35 @@ export class StorageAgent {
     this.log.debug('[scan-start]')
 
     try {
-      await Dent.Throttle.all(
-        Object.keys(this.options.mounts)
-          .filter((name) => this.options.mounts[name].enabled)
-          .map((name) => async () => {
-            this.log.debug('[scan-mount-start]', name)
+      const tasks = Object.keys(this.options.mounts)
+        .filter((name) => this.options.mounts[name].enabled)
+        .map((name) => async () => {
+          this.log.debug('[scan-mount-start]', name)
 
-            const mount = this.options.mounts[name]
+          const mount = this.options.mounts[name]
 
-            for await (const mountfile of this.storage.files(mount)) {
-              this.log.debug(Path.join(mountfile.path, mountfile.name))
+          for await (const mountfile of this.storage.files(mount)) {
+            this.log.debug(Path.join(mountfile.path, mountfile.name))
 
-              const existing = await this.context.files.get(this.getFileKey(mountfile))
+            const existing = await this.context.files.get(this.getFileKey(mountfile))
 
-              const transformed = await this.tasks.reduce(
-                (previous, task) => previous.then((file) => task.file(file)),
-                Promise.resolve(existing || mountfile),
-              )
+            const transformed = await this.tasks.reduce(
+              (previous, task) => previous.then((file) => task.file(file)),
+              Promise.resolve(existing || mountfile),
+            )
 
-              try {
-                await this.update(transformed)
-                this.log.debug(Path.join(transformed.path, transformed.name))
-              } catch (error) {
-                this.log.error(error)
-              }
+            try {
+              await this.update(transformed)
+              this.log.debug(Path.join(transformed.path, transformed.name))
+            } catch (error) {
+              this.log.error(error)
             }
+          }
 
-            this.log.debug('[scan-mount-done]', name)
-          }),
-      )
+          this.log.debug('[scan-mount-done]', name)
+        })
+
+      await Dent.Throttle.all(tasks)
     } catch (error) {
       this.log.error(new BError('scan-error', error))
     }
