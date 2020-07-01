@@ -65,7 +65,7 @@ export class StorageAgent {
               }
             }
           } catch (error) {
-            throw new BError(mount.name, error)
+            this.log.error(new BError(mount.name, error))
           }
 
           this.log.debug('[scan-mount-done]', name)
