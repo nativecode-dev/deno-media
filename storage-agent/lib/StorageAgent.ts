@@ -30,6 +30,7 @@ export class StorageAgent {
 
   private async checkin() {
     this.log.debug('[checkin-start]')
+
     try {
       const hostname = Dent.SysInfo.hostname(true)
       const ipaddress = (await Dent.SysInfo.ip_private()) || (await Dent.SysInfo.ip_public())
@@ -37,6 +38,7 @@ export class StorageAgent {
     } catch (error) {
       this.log.error(error)
     }
+
     this.log.debug('[checkin-done]')
   }
 
