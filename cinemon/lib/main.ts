@@ -6,7 +6,7 @@ import { LogMiddleware } from './Middlewares/LogMiddleware.ts'
 import { MediaStoreOptions, MediaStoreOptionsToken } from './MediaStoreOptions.ts'
 
 export async function main(options: MediaStoreOptions): Promise<void> {
-  const logger = Dent.createLogger('cinemon')
+  const logger = Dent.createLogger(['cinemon', Dent.SysInfo.hostname()].join(':'))
   logger.intercept(Dent.createScrubTransformer(['apikey', 'api_key', 'password']))
   Dent.LincolnLogDebug.observe(logger)
 

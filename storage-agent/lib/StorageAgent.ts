@@ -20,7 +20,7 @@ export class StorageAgent {
     @Alo.Inject(CinemonClient) private readonly cinemon: CinemonClient,
     @Alo.InjectAll(StorageAgentTaskToken) private readonly tasks: StorageAgentTask[],
   ) {
-    this.log = logger.extend('storage-agent')
+    this.log = logger.extend('server')
   }
 
   async start() {

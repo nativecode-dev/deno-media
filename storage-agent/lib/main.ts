@@ -13,7 +13,7 @@ import { DocumentStoreToken, DatabaseNameToken } from './Tokens.ts'
 import { StorageAgentOptions, StorageAgentOptionsToken } from './StorageAgentOptions.ts'
 
 export async function main(options: StorageAgentOptions): Promise<void> {
-  const logger = Dent.createLogger(options.type)
+  const logger = Dent.createLogger([options.type, Dent.SysInfo.hostname()].join(':'))
   logger.intercept(Dent.createScrubTransformer(['apikey', 'api_key', 'password']))
   Dent.LincolnLogDebug.observe(logger)
 
