@@ -25,7 +25,7 @@ export class StorageAgent {
 
   async start() {
     this.scheduler.fromSchedule({ command: () => this.checkin(), name: 'heartbeat', schedule: '1m', type: Dent.ScheduleType.every })
-    this.scheduler.fromSchedule({ command: () => this.scan(), name: 'scan', schedule: '10m', type: Dent.ScheduleType.every })
+    this.scheduler.fromSchedule({ command: () => this.scan(), name: 'scan', schedule: '1m', type: Dent.ScheduleType.every })
   }
 
   private async checkin() {
