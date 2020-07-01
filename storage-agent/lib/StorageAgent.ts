@@ -46,20 +46,26 @@ export class StorageAgent {
 
           const mount = this.options.mounts[name]
 
-          for await (const mountfile of this.storage.files(mount)) {
-            const existing = await this.context.files.get(this.getFileKey(mountfile))
+          try {
+            for await (const mountfile of this.storage.files(mount)) {
+              this.log.debug(Path.join(mountfile.path, mountfile.name))
 
-            const transformed = await this.tasks.reduce(
-              (previous, task) => previous.then((file) => task.file(file)),
-              Promise.resolve(existing || mountfile),
-            )
+              const existing = await this.context.files.get(this.getFileKey(mountfile))
 
-            try {
-              await this.update(transformed)
-              this.log.debug(Path.join(transformed.path, transformed.name))
-            } catch (error) {
-              this.log.error(error)
+              const transformed = await this.tasks.reduce(
+                (previous, task) => previous.then((file) => task.file(file)),
+                Promise.resolve(existing || mountfile),
+              )
+
+              try {
+                await this.update(transformed)
+                this.log.debug(Path.join(transformed.path, transformed.name))
+              } catch (error) {
+                this.log.error(error)
+              }
             }
+          } catch (error) {
+            throw new BError(mount.name, error)
           }
 
           this.log.debug('[scan-mount-done]', name)
