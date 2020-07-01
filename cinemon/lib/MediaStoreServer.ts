@@ -7,9 +7,9 @@ import { MediaStoreOptions, MediaStoreOptionsToken } from './MediaStoreOptions.t
 
 @Alo.Injectable()
 export class MediaStoreServer {
-  protected readonly application: Alo.App<any>
-
   private readonly log: Dent.Lincoln
+
+  protected readonly application: Alo.App<any>
 
   constructor(
     @Alo.Inject(MediaStoreOptionsToken) private readonly options: MediaStoreOptions,
@@ -85,11 +85,11 @@ export class MediaStoreServer {
       })
 
       await Dent.Throttle.all(tasks)
-
-      this.log.debug('[radarr-done]')
     } catch (error) {
       this.log.error(error)
     }
+
+    this.log.debug('[radarr-done]')
   }
 
   private async syncSonarr() {
@@ -128,10 +128,10 @@ export class MediaStoreServer {
       })
 
       await Dent.Throttle.all(tasks)
-
-      this.log.debug('[sonarr-done]')
     } catch (error) {
       this.log.debug(error)
     }
+
+    this.log.debug('[sonarr-done]')
   }
 }

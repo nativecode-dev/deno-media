@@ -21,7 +21,7 @@ export const DefaultMediaStoreOptions: MediaStoreOptions = {
     name: 'cinemon',
   },
   schedules: {
-    sync: '1m',
+    sync: '10m',
   },
   type: 'cinemon',
 }

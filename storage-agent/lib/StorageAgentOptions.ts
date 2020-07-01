@@ -59,7 +59,7 @@ export const DefaultStorageAgentOptions: StorageAgentOptions = {
   hostname: Dent.SysInfo.hostname(),
   schedules: {
     heartbeat: '1m',
-    scan: '1m',
+    scan: '10m',
   },
   type: 'storage-agent',
 }
