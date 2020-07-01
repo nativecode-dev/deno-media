@@ -58,6 +58,8 @@ export class MediaStoreServer {
   }
 
   private async syncRadarr(resync: boolean = false) {
+    const log = this.log.extend('radarr')
+
     try {
       const response = await this.store.radarr.movie.list()
 
@@ -66,7 +68,7 @@ export class MediaStoreServer {
         .filter((x) => x.imdbId !== '')
         .filter((x) => x.year !== 0)
 
-      this.log.debug('[radarr-start]', { count: movies.length })
+      log.debug('[radarr-start]', { count: movies.length })
 
       const tasks = movies.map((movie) => {
         return async () => {
@@ -86,22 +88,24 @@ export class MediaStoreServer {
               year: movie.year,
             })
 
-            this.log.info('[radarr-sync]', { movie: movie.title })
+            log.info(movie.title)
           } catch (error) {
-            this.log.error(error, movie.title)
+            log.error(error, movie.title)
           }
         }
       })
 
       await Dent.Throttle.all(tasks)
     } catch (error) {
-      this.log.error(error)
+      log.error(error)
     }
 
-    this.log.debug('[radarr-done]')
+    log.debug('[radarr-done]')
   }
 
   private async syncSonarr(resync: boolean = false) {
+    const log = this.log.extend('sonarr')
+
     try {
       const response = await this.store.sonarr.series.list()
 
@@ -110,7 +114,7 @@ export class MediaStoreServer {
         .filter((x) => x.imdbId !== '')
         .filter((x) => x.year !== 0)
 
-      this.log.debug('[sonarr-start]', { content: shows.length })
+      log.debug('[sonarr-start]', { content: shows.length })
 
       const tasks = shows.map((series) => {
         return async () => {
@@ -129,18 +133,18 @@ export class MediaStoreServer {
               year: series.year,
             })
 
-            this.log.info('[sonarr-sync]', { series: series.title })
+            log.info(series.title)
           } catch (error) {
-            this.log.error(error, series.title)
+            log.error(error, series.title)
           }
         }
       })
 
       await Dent.Throttle.all(tasks)
     } catch (error) {
-      this.log.debug(error)
+      log.debug(error)
     }
 
-    this.log.debug('[sonarr-done]')
+    log.debug('[sonarr-done]')
   }
 }

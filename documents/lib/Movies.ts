@@ -1,9 +1,9 @@
-import { Dent } from '../deps.ts'
+import { BError, Dent } from '../deps.ts'
 
 import { MediaMovie, MediaType } from './Models/Media.ts'
 
 function NODE_KEY(document: Dent.Essentials.DeepPartial<MediaMovie>): string {
-  return [MediaType.movie, document.imdb_id].join('_')
+  return document.imdb_id!
 }
 
 export class Movies {
@@ -11,14 +11,17 @@ export class Movies {
 
   async get(imdb_id: string) {
     try {
-      return await this.collection.get(NODE_KEY({ imdb_id }))
+      return await this.collection.get(imdb_id)
     } catch (error) {
-      console.log(imdb_id)
-      throw error
+      throw new BError(imdb_id, error)
     }
   }
 
   async update(media: Dent.Essentials.DeepPartial<MediaMovie>) {
-    return await this.collection.update(media, NODE_KEY)
+    try {
+      return await this.collection.update(media, NODE_KEY)
+    } catch (error) {
+      throw new BError(media.imdb_id!, error)
+    }
   }
 }
