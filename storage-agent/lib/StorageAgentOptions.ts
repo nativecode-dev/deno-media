@@ -15,6 +15,7 @@ export interface StorageAgentOptions {
   mounts: { [key: string]: StorageAgentMount }
   queue: Dent.ConnectorOptions
   hostname: string
+  schedules: { [key: string]: string }
   type: string
 }
 
@@ -56,6 +57,10 @@ export const DefaultStorageAgentOptions: StorageAgentOptions = {
     name: 'queue',
   },
   hostname: Dent.SysInfo.hostname(),
+  schedules: {
+    heartbeat: '1m',
+    scan: '1m',
+  },
   type: 'storage-agent',
 }
 

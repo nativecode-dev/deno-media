@@ -53,7 +53,7 @@ export class MediaStoreServer {
         .filter((x) => x.imdbId !== '')
         .filter((x) => x.year !== 0)
 
-      this.log.debug('[radarr]', movies.length)
+      this.log.debug('[radarr-start]', movies.length)
 
       const tasks = movies.map((movie) => {
         return async () => {
@@ -80,7 +80,7 @@ export class MediaStoreServer {
 
       await Dent.Throttle.all(tasks)
 
-      this.log.debug('[radarr]', 'completed')
+      this.log.debug('[radarr-done]')
     } catch (error) {
       this.log.error(error)
     }
@@ -95,7 +95,7 @@ export class MediaStoreServer {
         .filter((x) => x.imdbId !== '')
         .filter((x) => x.year !== 0)
 
-      this.log.debug('[sonarr]', shows.length)
+      this.log.debug('[sonarr-start]', shows.length)
 
       const tasks = shows.map((series) => {
         return async () => {
@@ -121,7 +121,7 @@ export class MediaStoreServer {
 
       await Dent.Throttle.all(tasks)
 
-      this.log.debug('[sonarr]', 'completed')
+      this.log.debug('[sonarr-done]')
     } catch (error) {
       this.log.debug(error)
     }
