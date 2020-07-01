@@ -26,7 +26,7 @@ export class MediaStoreServer {
     this.application.error((context: Alo.Context<any>, error: Error) => {
       context.response.result = Alo.Content('This page unprocessed error', (error as Alo.HttpError).httpCode || 500)
       context.response.setImmediately()
-      this.log.error(error)
+      this.log.error(error, context)
     })
 
     await this.createJobs()
@@ -39,7 +39,7 @@ export class MediaStoreServer {
         await Promise.all([this.syncRadarr(), this.syncSonarr()])
       },
       name: 'sync',
-      schedule: '10m',
+      schedule: this.options.schedules.sync,
       type: Dent.ScheduleType.every,
     })
   }

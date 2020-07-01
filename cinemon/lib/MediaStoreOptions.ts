@@ -6,6 +6,7 @@ export interface MediaStoreOptions {
   connections: MediaStoreConnections
   database: { name: string }
   hosting: Dent.ConnectorOptions
+  schedules: { [key: string]: string }
   type: string
 }
 
@@ -18,6 +19,9 @@ export const DefaultMediaStoreOptions: MediaStoreOptions = {
       port: 3000,
     },
     name: 'cinemon',
+  },
+  schedules: {
+    sync: '1m',
   },
   type: 'cinemon',
 }

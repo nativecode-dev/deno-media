@@ -34,7 +34,8 @@ async function configuration(name: string, filename: string): Promise<[string, a
     return [filename, Dent.ObjectMerge.mergex({ dedupe: true }, defaults, json)]
   }
 
-  return [filename, Dent.ObjectMerge.mergex({ dedupe: true }, defaults)]
+  const config = Dent.ObjectMerge.mergex({ dedupe: true }, defaults)
+  return [filename, config]
 }
 
 await Promise.all(
