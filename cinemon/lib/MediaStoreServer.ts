@@ -46,9 +46,18 @@ export class MediaStoreServer {
       schedule: this.options.schedules.sync,
       type: Dent.ScheduleType.every,
     })
+
+    this.scheduler.fromSchedule({
+      command: async () => {
+        await Promise.all([this.syncRadarr(true), this.syncSonarr(true)])
+      },
+      name: 'sync',
+      schedule: '12am',
+      type: Dent.ScheduleType.daily,
+    })
   }
 
-  private async syncRadarr() {
+  private async syncRadarr(resync: boolean = false) {
     try {
       const response = await this.store.radarr.movie.list()
 
@@ -64,7 +73,7 @@ export class MediaStoreServer {
           try {
             const radarr = await this.context.movies.get(movie.imdbId)
 
-            if (radarr !== null) {
+            if (radarr !== null && resync == false) {
               return
             }
 
@@ -92,7 +101,7 @@ export class MediaStoreServer {
     this.log.debug('[radarr-done]')
   }
 
-  private async syncSonarr() {
+  private async syncSonarr(resync: boolean = false) {
     try {
       const response = await this.store.sonarr.series.list()
 
@@ -106,9 +115,9 @@ export class MediaStoreServer {
       const tasks = shows.map((series) => {
         return async () => {
           try {
-            const show = await this.context.movies.get(series.imdbId)
+            const show = await this.context.series.get(series.imdbId)
 
-            if (show !== null) {
+            if (show !== null && resync == false) {
               return
             }
 

@@ -54,7 +54,7 @@ await Promise.all(
     const [filename, config] = await configuration(name, fullpath)
     await Deno.writeTextFile(filename, JSON.stringify(config, null, 2))
 
-    console.log('running', name)
+    console.log('[run]', name)
     return executable.main(config)
   }),
 )
