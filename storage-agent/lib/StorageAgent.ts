@@ -29,24 +29,29 @@ export class StorageAgent {
   }
 
   private async checkin() {
-    this.log.debug('[checkin]')
-    const hostname = Dent.SysInfo.hostname(true)
-    const ipaddress = (await Dent.SysInfo.ip_private()) || (await Dent.SysInfo.ip_public())
-    await this.cinemon.nodes.checkin(this.options.type, hostname, ipaddress)
+    this.log.debug('[checkin-start]')
+    try {
+      const hostname = Dent.SysInfo.hostname(true)
+      const ipaddress = (await Dent.SysInfo.ip_private()) || (await Dent.SysInfo.ip_public())
+      await this.cinemon.nodes.checkin(this.options.type, hostname, ipaddress)
+    } catch (error) {
+      this.log.error(error)
+    }
+    this.log.debug('[checkin-done]')
   }
 
   private async scan() {
     this.log.debug('[scan-start]')
 
-    await Dent.Throttle.all(
-      Object.keys(this.options.mounts)
-        .filter((name) => this.options.mounts[name].enabled)
-        .map((name) => async () => {
-          this.log.debug('[scan-mount-start]', name)
+    try {
+      await Dent.Throttle.all(
+        Object.keys(this.options.mounts)
+          .filter((name) => this.options.mounts[name].enabled)
+          .map((name) => async () => {
+            this.log.debug('[scan-mount-start]', name)
 
-          const mount = this.options.mounts[name]
+            const mount = this.options.mounts[name]
 
-          try {
             for await (const mountfile of this.storage.files(mount)) {
               this.log.debug(Path.join(mountfile.path, mountfile.name))
 
@@ -64,13 +69,13 @@ export class StorageAgent {
                 this.log.error(error)
               }
             }
-          } catch (error) {
-            this.log.error(new BError(mount.name, error))
-          }
 
-          this.log.debug('[scan-mount-done]', name)
-        }),
-    )
+            this.log.debug('[scan-mount-done]', name)
+          }),
+      )
+    } catch (error) {
+      this.log.error(new BError('scan-error', error))
+    }
 
     this.log.debug('[scan-done]')
   }
