@@ -25,47 +25,47 @@ export class StorageAgent {
 
   async start() {
     this.scheduler.fromSchedule({
-      command: () => this.checkin(),
+      command: () => this.checkin(this.log.extend('heartbeat')),
       name: 'heartbeat',
       schedule: this.options.schedules.heartbeat,
       type: Dent.ScheduleType.every,
     })
 
     this.scheduler.fromSchedule({
-      command: () => this.scan(),
+      command: () => this.scan(this.log.extend('scan')),
       name: 'scan',
       schedule: this.options.schedules.scan,
       type: Dent.ScheduleType.every,
     })
   }
 
-  private async checkin() {
-    this.log.debug('[checkin-start]')
+  private async checkin(log: Dent.Lincoln) {
+    log.debug('[checkin-start]')
 
     try {
       const hostname = Dent.SysInfo.hostname(true)
       const ipaddress = (await Dent.SysInfo.ip_private()) || (await Dent.SysInfo.ip_public())
       await this.cinemon.nodes.checkin(this.options.type, hostname, ipaddress)
     } catch (error) {
-      this.log.error(error)
+      log.error(error)
     }
 
-    this.log.debug('[checkin-done]')
+    log.debug('[checkin-done]')
   }
 
-  private async scan() {
-    this.log.debug('[scan-start]')
+  private async scan(log: Dent.Lincoln) {
+    log.debug('[scan-start]')
 
     try {
       const tasks = Object.keys(this.options.mounts)
         .filter((name) => this.options.mounts[name].enabled)
         .map((name) => async () => {
-          this.log.debug('[scan-mount-start]', name)
+          log.debug('[scan-mount-start]', name)
 
           const mount = this.options.mounts[name]
 
           for await (const mountfile of this.storage.files(mount)) {
-            this.log.debug(Path.join(mountfile.path, mountfile.name))
+            log.debug(Path.join(mountfile.path, mountfile.name))
 
             const existing = await this.context.files.get(this.getFileKey(mountfile))
 
@@ -76,21 +76,21 @@ export class StorageAgent {
 
             try {
               await this.update(transformed)
-              this.log.debug(Path.join(transformed.path, transformed.name))
+              log.debug(Path.join(transformed.path, transformed.name))
             } catch (error) {
-              this.log.error(error)
+              log.error(error)
             }
           }
 
-          this.log.debug('[scan-mount-done]', name)
+          log.debug('[scan-mount-done]', name)
         })
 
       await Dent.Throttle.all(tasks)
     } catch (error) {
-      this.log.error(new BError('scan-error', error))
+      log.error(new BError('scan-error', error))
     }
 
-    this.log.debug('[scan-done]')
+    log.debug('[scan-done]')
   }
 
   private async update(file: MountFile): Promise<void> {
