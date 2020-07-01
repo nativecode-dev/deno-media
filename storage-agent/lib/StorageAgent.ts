@@ -60,7 +60,7 @@ export class StorageAgent {
       const tasks = Object.keys(this.options.mounts)
         .filter((name) => this.options.mounts[name].enabled)
         .map((name) => async () => {
-          log.debug('[scan-mount-start]', name)
+          log.debug('[scan-mount-start]', { mount: name })
 
           const mount = this.options.mounts[name]
 
@@ -82,7 +82,7 @@ export class StorageAgent {
             }
           }
 
-          log.debug('[scan-mount-done]', name)
+          log.debug('[scan-mount-done]', { mount: name })
         })
 
       await Dent.Throttle.all(tasks)
