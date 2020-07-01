@@ -1,10 +1,8 @@
-import { Alo, BError, CinemonClient, Dent, Path } from '../deps.ts'
+import { Alo, BError, CinemonClient, Dent } from '../deps.ts'
 
-import { MountFile } from './MountFile.ts'
 import { StorageManager } from './StorageManager.ts'
 import { StorageAgentTask } from './StorageAgentTask.ts'
 import { StorageAgentTaskToken } from './StorageAgentTask.ts'
-import { StorageAgentContext } from './StorageAgentContext.ts'
 import { StorageAgentOptions, StorageAgentOptionsToken } from './StorageAgentOptions.ts'
 
 @Alo.Injectable()
@@ -14,7 +12,6 @@ export class StorageAgent {
   constructor(
     @Alo.Inject(Dent.LoggerType) logger: Dent.Lincoln,
     @Alo.Inject(Dent.Scheduler) private readonly scheduler: Dent.Scheduler,
-    @Alo.Inject(StorageAgentContext) private readonly context: StorageAgentContext,
     @Alo.Inject(StorageAgentOptionsToken) private readonly options: StorageAgentOptions,
     @Alo.Inject(StorageManager) private readonly storage: StorageManager,
     @Alo.Inject(CinemonClient) private readonly cinemon: CinemonClient,
@@ -56,54 +53,39 @@ export class StorageAgent {
   private async scan(log: Dent.Lincoln) {
     log.debug('[scan-start]')
 
-    try {
-      const tasks = Object.keys(this.options.mounts)
-        .filter((name) => this.options.mounts[name].enabled)
-        .map((name) => async () => {
-          log.debug('[scan-mount-start]', { mount: name })
+    const tasks = Object.keys(this.options.mounts)
+      .filter((name) => this.options.mounts[name].enabled)
+      .map((name) => async () => {
+        log.debug('[scan-mount-start]', { mount: name })
 
-          const mount = this.options.mounts[name]
+        const mount = this.options.mounts[name]
 
-          for await (const mountfile of this.storage.files(mount)) {
-            log.debug(Path.join(mountfile.path, mountfile.name))
+        for await (const mountfile of this.storage.files(mount)) {
+          const transformed = await this.tasks.reduce(
+            (previous, task) =>
+              previous.then(async (file) => {
+                mountfile.files = await task.file(file.files)
+                return mountfile
+              }),
+            Promise.resolve(mountfile),
+          )
 
-            const existing = await this.context.files.get(this.getFileKey(mountfile))
-
-            const transformed = await this.tasks.reduce(
-              (previous, task) => previous.then((file) => task.file(file)),
-              Promise.resolve(existing || mountfile),
-            )
-
-            try {
-              await this.update(transformed)
-              log.debug(Path.join(transformed.path, transformed.name))
-            } catch (error) {
-              log.error(error)
-            }
+          try {
+            await this.cinemon.files.update(transformed)
+          } catch (error) {
+            log.error(error)
           }
+        }
 
-          log.debug('[scan-mount-done]', { mount: name })
-        })
+        log.debug('[scan-mount-done]', { mount: name })
+      })
 
+    try {
       await Dent.Throttle.all(tasks)
     } catch (error) {
       log.error(new BError('scan-error', error))
     }
 
     log.debug('[scan-done]')
-  }
-
-  private async update(file: MountFile): Promise<void> {
-    try {
-      await this.context.files.update(file, (filedoc) => this.getFileKey(filedoc))
-    } catch (error) {
-      throw new BError('update-error', error)
-    }
-  }
-
-  private getFileKey(filedoc: MountFile): string {
-    const filename = filedoc.name.replace(/[\.\_\/\-]/g, '')
-    const filepath = filedoc.path.replace(/[\.\_\/\-]/g, '')
-    return [filedoc.mount.name, filepath, filename].join('-').toLowerCase()
   }
 }

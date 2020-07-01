@@ -9,6 +9,10 @@ function NODE_KEY(document: Dent.Essentials.DeepPartial<MediaMovie>): string {
 export class Movies {
   constructor(private readonly collection: Dent.DocumentCollection<MediaMovie>) {}
 
+  all() {
+    return this.collection.all()
+  }
+
   async get(imdb_id: string) {
     try {
       return await this.collection.get(imdb_id)

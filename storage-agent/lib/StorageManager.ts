@@ -1,23 +1,25 @@
-import { Alo, Dent, Path } from '../deps.ts'
+import { Alo, BError, Checksum, Dent, Documents, Path, exists } from '../deps.ts'
 
-import { MountFile } from './MountFile.ts'
-import { StorageAgentMount } from './StorageAgentOptions.ts'
+import { StorageAgentMount, StorageAgentOptions, StorageAgentOptionsToken } from './StorageAgentOptions.ts'
 
 @Alo.Injectable()
 export class StorageManager {
   private readonly log: Dent.Lincoln
 
-  constructor(@Alo.Inject(Dent.LoggerType) logger: Dent.Lincoln) {
+  constructor(
+    @Alo.Inject(Dent.LoggerType) logger: Dent.Lincoln,
+    @Alo.Inject(StorageAgentOptionsToken) private readonly options: StorageAgentOptions,
+  ) {
     this.log = logger.extend('storage-manager')
   }
 
-  async *all(mount: StorageAgentMount): AsyncGenerator<MountFile> {
+  async *all(mount: StorageAgentMount): AsyncGenerator<Documents.MountFile> {
     for await (const entry of this.entries(mount.path, mount)) {
       yield entry
     }
   }
 
-  async *directories(mount: StorageAgentMount): AsyncGenerator<MountFile> {
+  async *directories(mount: StorageAgentMount): AsyncGenerator<Documents.MountFile> {
     for await (const entry of this.entries(mount.path, mount)) {
       if (entry.type === 'directory') {
         yield entry
@@ -25,7 +27,7 @@ export class StorageManager {
     }
   }
 
-  async *files(mount: StorageAgentMount): AsyncGenerator<MountFile> {
+  async *files(mount: StorageAgentMount): AsyncGenerator<Documents.MountFile> {
     for await (const entry of this.entries(mount.path, mount)) {
       if (entry.type === 'file') {
         yield entry
@@ -33,7 +35,12 @@ export class StorageManager {
     }
   }
 
-  private async *entries(cwd: string, mount: StorageAgentMount): AsyncGenerator<MountFile> {
+  private async *entries(cwd: string, mount: StorageAgentMount): AsyncGenerator<Documents.MountFile> {
+    if ((await exists(cwd)) === false) {
+      this.log.debug('path does not exist', { cwd, mount })
+      return
+    }
+
     for await (const entry of Deno.readDir(cwd)) {
       const extname = Path.extname(entry.name)
       const ignored = mount.ignore.includes(entry.name)
@@ -44,11 +51,12 @@ export class StorageManager {
         continue
       }
 
+      const filename = Path.join(cwd, entry.name)
+
       yield {
-        mount,
-        name: entry.name,
-        path: cwd,
-        queued: [],
+        checksum: await this.checksum(filename),
+        files: [{ data: {}, name: entry.name, path: cwd }],
+        mount: { host: this.options.hostname, name: mount.name, path: mount.path },
         type: entry.isDirectory ? 'directory' : 'file',
       }
 
@@ -59,6 +67,21 @@ export class StorageManager {
           yield mountfile
         }
       }
+    }
+  }
+
+  private async checksum(filename: string): Promise<string> {
+    const hash = Checksum.createHash('md5')
+    const reader = await Deno.open(filename)
+
+    try {
+      for await (const bytes of Deno.iter(reader)) {
+        hash.update(bytes)
+      }
+
+      return hash.toString('hex')
+    } finally {
+      reader.close()
     }
   }
 }

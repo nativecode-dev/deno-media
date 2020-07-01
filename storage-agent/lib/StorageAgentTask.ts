@@ -1,7 +1,7 @@
-import { MountFile } from './MountFile.ts'
+import { Documents } from '../deps.ts'
 
 export interface StorageAgentTask {
-  file(file: MountFile): Promise<MountFile>
+  file(file: Documents.MountFileInstance[]): Promise<Documents.MountFileInstance[]>
 }
 
 export const StorageAgentTaskToken: symbol = Symbol('StorageAgentTask')

@@ -1,2 +1,6 @@
 export * from './lib/CinemonClient.ts'
+export * from './lib/CinemonClientOptions.ts'
+export * from './lib/Resources/MountFileResource.ts'
+export * from './lib/Resources/MovieResource.ts'
 export * from './lib/Resources/NodeResource.ts'
+export * from './lib/Resources/SeriesResource.ts'
