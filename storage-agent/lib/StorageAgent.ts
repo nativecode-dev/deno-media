@@ -82,7 +82,7 @@ export class StorageAgent {
       })
 
     try {
-      await Dent.Throttle.all(tasks)
+      await Dent.Throttle.serial(tasks)
     } catch (error) {
       log.error(new BError('scan-error', error))
     }
