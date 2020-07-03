@@ -58,6 +58,8 @@ export class StorageManager {
           for await (const mountfile of this.entries(subdir, mount)) {
             yield mountfile
           }
+
+          continue
         }
 
         if (entry.isFile) {
@@ -70,6 +72,8 @@ export class StorageManager {
             mount: { host: this.options.hostname, name: mount.name, path: mount.path },
             type: entry.isDirectory ? 'directory' : 'file',
           }
+
+          continue
         }
       } catch (error) {
         this.log.error(error)
