@@ -75,7 +75,7 @@ export class Cinemon {
           try {
             const film = await this.context.movies.get(movie.imdbId)
 
-            if (film !== null && resync === false) {
+            if (film !== null && film.data.radarr && resync === false) {
               return
             }
 
@@ -121,7 +121,7 @@ export class Cinemon {
           try {
             const show = await this.context.series.get(series.imdbId)
 
-            if (show !== null && resync === false) {
+            if (show !== null && show.data.sonarr && resync === false) {
               return
             }
 
