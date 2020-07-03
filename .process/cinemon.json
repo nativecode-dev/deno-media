@@ -12,7 +12,7 @@
     "DEBUG": "*"
   },
   "env_prod": {
-    "DEBUG": "cinemon:*",
+    "DEBUG": "*:cinemon:*",
     "NODE_ENV": "production"
   }
 }

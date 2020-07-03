@@ -12,7 +12,7 @@
     "DEBUG": "*"
   },
   "env_prod": {
-    "DEBUG": "storage-agent:*",
+    "DEBUG": "*:storage-agent:*",
     "NODE_ENV": "production"
   }
 }

@@ -7,7 +7,7 @@
     "DEBUG": "*"
   },
   "env_prod": {
-    "DEBUG": "cinemon-web:*",
+    "DEBUG": "*:cinemon-web:*",
     "NODE_ENV": "production"
   }
 }
