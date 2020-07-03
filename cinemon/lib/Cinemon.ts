@@ -35,6 +35,7 @@ export class Cinemon {
       await this.application.listen({ port: this.options.hosting.endpoint.port || 3000 })
     } catch (error) {
       this.log.error(error)
+      Deno.exit()
     }
   }
 
