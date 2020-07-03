@@ -73,9 +73,9 @@ export class Cinemon {
       const tasks = movies.map((movie) => {
         return async () => {
           try {
-            const radarr = await this.context.movies.get(movie.imdbId)
+            const film = await this.context.movies.get(movie.imdbId)
 
-            if (radarr !== null && resync == false) {
+            if (film !== null && resync === false) {
               return
             }
 
@@ -121,7 +121,7 @@ export class Cinemon {
           try {
             const show = await this.context.series.get(series.imdbId)
 
-            if (show !== null && resync == false) {
+            if (show !== null && resync === false) {
               return
             }
 

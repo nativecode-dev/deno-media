@@ -17,7 +17,8 @@ export class Movies {
     try {
       return await this.collection.get(imdb_id)
     } catch (error) {
-      throw new BError(imdb_id, error)
+      console.error(new BError(imdb_id, error))
+      return null
     }
   }
 

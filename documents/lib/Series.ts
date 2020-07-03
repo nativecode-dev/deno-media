@@ -1,6 +1,6 @@
 import { BError, Dent } from '../deps.ts'
 
-import { MediaSeries, MediaType } from './Models/Media.ts'
+import { MediaSeries } from './Models/Media.ts'
 
 function NODE_KEY(document: Dent.Essentials.DeepPartial<MediaSeries>): string {
   return document.imdb_id!
@@ -17,7 +17,8 @@ export class Series {
     try {
       return await this.collection.get(imdb_id)
     } catch (error) {
-      throw new BError(imdb_id, error)
+      console.error(new BError(imdb_id, error))
+      return null
     }
   }
 
