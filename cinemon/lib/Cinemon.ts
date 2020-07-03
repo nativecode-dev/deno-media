@@ -28,6 +28,7 @@ export class Cinemon {
         context.response.result = Alo.Content('This page unprocessed error', (error as Alo.HttpError).httpCode || 500)
         context.response.setImmediately()
         this.log.error(error, context)
+        Deno.exit()
       })
 
       await this.createJobs()
