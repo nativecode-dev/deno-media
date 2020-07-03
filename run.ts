@@ -15,7 +15,7 @@ interface ProgramArgs {
 const ARGS: ProgramArgs = parse(Deno.args) as ProgramArgs
 
 const EXECUTABLES: { [key: string]: { config: any; main: (config: any) => Promise<void> | void } } = {
-  cinemon: { config: Cinemon.DefaultMediaStoreOptions, main: Cinemon.main },
+  cinemon: { config: Cinemon.DefaultCinemonOptions, main: Cinemon.main },
   'storage-agent': { config: Storage.DefaultStorageAgentOptions, main: Storage.main },
 }
 

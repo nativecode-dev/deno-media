@@ -1,6 +1,6 @@
 import { Connectors, Alo, Dent } from '../deps.ts'
 
-import { MediaStoreOptions, MediaStoreOptionsToken } from './MediaStoreOptions.ts'
+import { CinemonOptions, CinemonOptionsToken } from './CinemonOptions.ts'
 
 export interface MediaStoreMessage {}
 
@@ -13,7 +13,7 @@ export class MediaStore {
   readonly tmdb: Connectors.TMDB.TmdbClient
   readonly sonarr: Connectors.Sonarr.SonarrClient
 
-  constructor(@Alo.Inject(MediaStoreOptionsToken) options: MediaStoreOptions) {
+  constructor(@Alo.Inject(CinemonOptionsToken) options: CinemonOptions) {
     this.couchdb = new Connectors.Couch.CouchStore(options.connections.couchdb)
     this.tmdb = new Connectors.TMDB.TmdbClient(options.connections.tmdb)
 

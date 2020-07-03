@@ -3,9 +3,9 @@ import { Dent, Documents, Alo } from '../deps.ts'
 import { MediaStore } from './MediaStore.ts'
 import { Cinemon } from './Cinemon.ts'
 import { LogMiddleware } from './Middlewares/LogMiddleware.ts'
-import { MediaStoreOptions, MediaStoreOptionsToken } from './MediaStoreOptions.ts'
+import { CinemonOptions, CinemonOptionsToken } from './CinemonOptions.ts'
 
-export async function main(options: MediaStoreOptions): Promise<void> {
+export async function main(options: CinemonOptions): Promise<void> {
   const logger = Dent.createLogger([Dent.SysInfo.hostname(), 'cinemon'].join(':'))
   logger.intercept(Dent.createScrubTransformer(['apikey', 'api_key', 'password']))
   Dent.LincolnLogDebug.observe(logger)
@@ -27,7 +27,7 @@ export async function main(options: MediaStoreOptions): Promise<void> {
   Alo.container.register<Cinemon>(Cinemon, Cinemon)
   Alo.container.register<LogMiddleware>(LogMiddleware, LogMiddleware)
 
-  Alo.container.registerInstance<MediaStoreOptions>(MediaStoreOptionsToken, options)
+  Alo.container.registerInstance<CinemonOptions>(CinemonOptionsToken, options)
   Alo.container.registerInstance<Dent.Lincoln>(Dent.LoggerType, logger)
 
   Alo.container.registerSingleton(Dent.Scheduler, Dent.Scheduler)

@@ -2,7 +2,7 @@ import { Dent } from '../deps.ts'
 
 import { MediaStoreConnections, DefaultMediaStoreConnections } from './MediaStoreConnections.ts'
 
-export interface MediaStoreOptions {
+export interface CinemonOptions {
   connections: MediaStoreConnections
   database: { name: string }
   hosting: Dent.ConnectorOptions
@@ -10,7 +10,7 @@ export interface MediaStoreOptions {
   type: string
 }
 
-export const DefaultMediaStoreOptions: MediaStoreOptions = {
+export const DefaultCinemonOptions: CinemonOptions = {
   connections: DefaultMediaStoreConnections,
   database: { name: 'cinemon' },
   hosting: {
@@ -26,4 +26,4 @@ export const DefaultMediaStoreOptions: MediaStoreOptions = {
   type: 'cinemon',
 }
 
-export const MediaStoreOptionsToken: symbol = Symbol('MediaStoreOptions')
+export const CinemonOptionsToken: symbol = Symbol('CinemonOptions')

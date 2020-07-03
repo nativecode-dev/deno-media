@@ -3,7 +3,7 @@ import { Alo, Dent, Documents } from '../deps.ts'
 import { ApiArea } from './api/ApiArea.ts'
 import { MediaStore } from './MediaStore.ts'
 import { LogMiddleware } from './Middlewares/LogMiddleware.ts'
-import { MediaStoreOptions, MediaStoreOptionsToken } from './MediaStoreOptions.ts'
+import { CinemonOptions, CinemonOptionsToken } from './CinemonOptions.ts'
 
 @Alo.Injectable()
 export class Cinemon {
@@ -12,7 +12,7 @@ export class Cinemon {
   protected readonly application: Alo.App<any>
 
   constructor(
-    @Alo.Inject(MediaStoreOptionsToken) private readonly options: MediaStoreOptions,
+    @Alo.Inject(CinemonOptionsToken) private readonly options: CinemonOptions,
     @Alo.Inject(Documents.DataContext) private readonly context: Documents.DataContext,
     @Alo.Inject(Dent.Scheduler) private readonly scheduler: Dent.Scheduler,
     @Alo.Inject(MediaStore) private readonly store: MediaStore,
