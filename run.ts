@@ -31,10 +31,10 @@ async function configuration(name: string, filename: string): Promise<[string, a
   if (await exists(filename)) {
     const jsontext = await Deno.readTextFile(filename)
     const json = JSON.parse(jsontext)
-    return [filename, Dent.ObjectMerge.mergex({ dedupe: true }, defaults, json)]
+    return [filename, Dent.ObjectMerge.merge(defaults, json)]
   }
 
-  const config = Dent.ObjectMerge.mergex({ dedupe: true }, defaults)
+  const config = Dent.ObjectMerge.merge(defaults)
   return [filename, config]
 }
 
