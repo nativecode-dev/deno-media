@@ -42,32 +42,38 @@ export class StorageManager {
     }
 
     for await (const entry of Deno.readDir(cwd)) {
-      const extname = Path.extname(entry.name)
-      const ignored = mount.ignore.includes(entry.name)
-      const includeAll = mount.allowed.includes('*')
-      const includeExt = mount.allowed.includes(extname)
+      try {
+        const extname = Path.extname(entry.name)
+        const ignored = mount.ignore.includes(entry.name)
+        const includeAll = mount.allowed.includes('*')
+        const includeExt = mount.allowed.includes(extname)
 
-      if ((includeAll === false && includeExt === false && entry.isFile) || ignored) {
+        if ((includeAll === false && includeExt === false && entry.isFile) || ignored) {
+          continue
+        }
+
+        if (entry.isDirectory) {
+          const subdir = Path.join(cwd, entry.name)
+
+          for await (const mountfile of this.entries(subdir, mount)) {
+            yield mountfile
+          }
+        }
+
+        if (entry.isFile) {
+          const filename = Path.join(cwd, entry.name)
+          const checksum = await this.checksum(filename)
+
+          yield {
+            checksum,
+            files: [{ data: {}, name: entry.name, path: cwd }],
+            mount: { host: this.options.hostname, name: mount.name, path: mount.path },
+            type: entry.isDirectory ? 'directory' : 'file',
+          }
+        }
+      } catch (error) {
+        this.log.error(error)
         continue
-      }
-
-      if (entry.isFile) {
-        const filename = Path.join(cwd, entry.name)
-
-        yield {
-          checksum: await this.checksum(filename),
-          files: [{ data: {}, name: entry.name, path: cwd }],
-          mount: { host: this.options.hostname, name: mount.name, path: mount.path },
-          type: entry.isDirectory ? 'directory' : 'file',
-        }
-      }
-
-      if (entry.isDirectory) {
-        const subdir = Path.join(cwd, entry.name)
-
-        for await (const mountfile of this.entries(subdir, mount)) {
-          yield mountfile
-        }
       }
     }
   }
