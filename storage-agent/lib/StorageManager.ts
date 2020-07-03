@@ -51,13 +51,15 @@ export class StorageManager {
         continue
       }
 
-      const filename = Path.join(cwd, entry.name)
+      if (entry.isFile) {
+        const filename = Path.join(cwd, entry.name)
 
-      yield {
-        checksum: await this.checksum(filename),
-        files: [{ data: {}, name: entry.name, path: cwd }],
-        mount: { host: this.options.hostname, name: mount.name, path: mount.path },
-        type: entry.isDirectory ? 'directory' : 'file',
+        yield {
+          checksum: await this.checksum(filename),
+          files: [{ data: {}, name: entry.name, path: cwd }],
+          mount: { host: this.options.hostname, name: mount.name, path: mount.path },
+          type: entry.isDirectory ? 'directory' : 'file',
+        }
       }
 
       if (entry.isDirectory) {
