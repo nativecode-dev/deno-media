@@ -71,8 +71,8 @@ export class StorageAgent {
           )
 
           try {
-            this.log.debug(transformed)
             await this.cinemon.files.update(transformed)
+            this.log.debug(transformed.checksum, transformed.files)
           } catch (error) {
             log.error(error)
           }
