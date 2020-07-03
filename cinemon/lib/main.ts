@@ -1,7 +1,7 @@
 import { Dent, Documents, Alo } from '../deps.ts'
 
 import { MediaStore } from './MediaStore.ts'
-import { MediaStoreServer } from './MediaStoreServer.ts'
+import { Cinemon } from './Cinemon.ts'
 import { LogMiddleware } from './Middlewares/LogMiddleware.ts'
 import { MediaStoreOptions, MediaStoreOptionsToken } from './MediaStoreOptions.ts'
 
@@ -24,7 +24,7 @@ export async function main(options: MediaStoreOptions): Promise<void> {
   })
 
   Alo.container.register<MediaStore>(MediaStore, { useValue: store })
-  Alo.container.register<MediaStoreServer>(MediaStoreServer, MediaStoreServer)
+  Alo.container.register<Cinemon>(Cinemon, Cinemon)
   Alo.container.register<LogMiddleware>(LogMiddleware, LogMiddleware)
 
   Alo.container.registerInstance<MediaStoreOptions>(MediaStoreOptionsToken, options)
@@ -36,7 +36,7 @@ export async function main(options: MediaStoreOptions): Promise<void> {
     useValue: new Documents.DataContext(options.database.name, store.couchdb),
   })
 
-  const server = Alo.container.resolve(MediaStoreServer)
+  const server = Alo.container.resolve(Cinemon)
   logger.debug('[cinemon-server] resolved')
   return server.run()
 }

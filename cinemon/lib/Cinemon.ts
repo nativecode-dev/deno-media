@@ -6,7 +6,7 @@ import { LogMiddleware } from './Middlewares/LogMiddleware.ts'
 import { MediaStoreOptions, MediaStoreOptionsToken } from './MediaStoreOptions.ts'
 
 @Alo.Injectable()
-export class MediaStoreServer {
+export class Cinemon {
   private readonly log: Dent.Lincoln
 
   protected readonly application: Alo.App<any>
