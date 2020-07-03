@@ -11,7 +11,6 @@ export interface StorageAgentMount {
 
 export interface StorageAgentOptions {
   cinemon: Dent.ConnectorOptions
-  couchdb: Dent.ConnectorOptions
   mounts: { [key: string]: StorageAgentMount }
   queue: Dent.ConnectorOptions
   hostname: string
@@ -21,13 +20,6 @@ export interface StorageAgentOptions {
 
 export const DefaultStorageAgentOptions: StorageAgentOptions = {
   cinemon: {
-    endpoint: {
-      host: 'localhost',
-      protocol: 'http',
-    },
-    name: 'cinemon',
-  },
-  couchdb: {
     endpoint: {
       host: 'localhost',
       protocol: 'http',
