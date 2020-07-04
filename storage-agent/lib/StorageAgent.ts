@@ -42,7 +42,7 @@ export class StorageAgent {
     try {
       const hostname = Dent.SysInfo.hostname(true)
       const ipaddress = (await Dent.SysInfo.ip_private()) || (await Dent.SysInfo.ip_public())
-      await this.cinemon.nodes.checkin(this.options.type, hostname, ipaddress)
+      await retryAsync(() => this.cinemon.nodes.checkin(this.options.type, hostname, ipaddress), { delay: 1000, maxTry: 5 })
     } catch (error) {
       log.error(new BError('checkin', error))
     }
