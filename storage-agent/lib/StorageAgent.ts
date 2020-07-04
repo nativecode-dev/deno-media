@@ -44,7 +44,7 @@ export class StorageAgent {
       const ipaddress = (await Dent.SysInfo.ip_private()) || (await Dent.SysInfo.ip_public())
       await this.cinemon.nodes.checkin(this.options.type, hostname, ipaddress)
     } catch (error) {
-      log.error(error)
+      log.error(new BError('checkin', error))
     }
 
     log.debug('[done]')
@@ -75,7 +75,7 @@ export class StorageAgent {
               await retryAsync(() => this.cinemon.files.update(transformed), { delay: 1000, maxTry: 5 })
               this.log.debug(transformed.checksum, transformed.files)
             } catch (error) {
-              log.error(error)
+              log.error(new BError(mount.name, error))
             }
           }
 
