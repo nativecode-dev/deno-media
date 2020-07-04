@@ -13,3 +13,4 @@ export { exists } from 'https://deno.land/std@0.59.0/fs/exists.ts'
 export { Scheduler, ScheduleType } from 'https://raw.githubusercontent.com/nativecode-dev/dent/master/scheduler/mod.ts'
 
 export { CinemonClient } from '../rest-cinemon/mod.ts'
+export { retry, retryAsync } from 'https://deno.land/x/retry@v0.1.2/mod.ts'

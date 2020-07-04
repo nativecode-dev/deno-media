@@ -1,4 +1,4 @@
-import { Alo, BError, CinemonClient, Dent } from '../deps.ts'
+import { Alo, BError, CinemonClient, Dent, retryAsync } from '../deps.ts'
 
 import { StorageManager } from './StorageManager.ts'
 import { StorageAgentTask } from './StorageAgentTask.ts'
@@ -71,7 +71,7 @@ export class StorageAgent {
           )
 
           try {
-            await this.cinemon.files.update(transformed)
+            await retryAsync(() => this.cinemon.files.update(transformed), { delay: 1000, maxTry: 5 })
             this.log.debug(transformed.checksum, transformed.files)
           } catch (error) {
             log.error(error)
