@@ -1,3 +1,5 @@
 .config/
 .videos/
 dist/
+
+*.log
