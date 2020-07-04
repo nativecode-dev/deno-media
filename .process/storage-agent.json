@@ -6,6 +6,7 @@
     "documents",
     "messages",
     "queues",
+    "rest-cinemon",
     "storage-agent"
   ],
   "env": {

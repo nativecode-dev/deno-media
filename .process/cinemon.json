@@ -6,7 +6,8 @@
     "cinemon",
     "documents",
     "messages",
-    "queues"
+    "queues",
+    "rest-cinemon"
   ],
   "env": {
     "DEBUG": "*"
