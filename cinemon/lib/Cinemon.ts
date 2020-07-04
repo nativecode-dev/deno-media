@@ -27,7 +27,7 @@ export class Cinemon {
       this.application.error((context: Alo.Context<any>, error: Error) => {
         context.response.result = Alo.Content('This page unprocessed error', (error as Alo.HttpError).httpCode || 500)
         context.response.setImmediately()
-        this.log.error(error, context)
+        this.log.fatal(error, context)
         console.error(context.request, context.response)
         Deno.exit(1)
       })
@@ -36,7 +36,7 @@ export class Cinemon {
 
       await this.application.listen({ port: this.options.hosting.endpoint.port || 3000 })
     } catch (error) {
-      this.log.error(error)
+      this.log.fatal(error, { fatal: true })
       Deno.exit(1)
     }
   }
