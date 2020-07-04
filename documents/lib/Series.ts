@@ -10,7 +10,11 @@ export class Series {
   constructor(private readonly collection: Dent.DocumentCollection<MediaSeries>) {}
 
   all() {
-    return this.collection.all()
+    try {
+      return this.collection.all()
+    } catch (error) {
+      throw new BError('all', error)
+    }
   }
 
   async get(imdb_id: string) {
