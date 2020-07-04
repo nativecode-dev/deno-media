@@ -37,7 +37,7 @@ export class StorageAgent {
   }
 
   private async checkin(log: Dent.Lincoln) {
-    log.debug('[checkin-start]')
+    log.debug('[start]')
 
     try {
       const hostname = Dent.SysInfo.hostname(true)
@@ -47,38 +47,40 @@ export class StorageAgent {
       log.error(error)
     }
 
-    log.debug('[checkin-done]')
+    log.debug('[done]')
   }
 
   private async scan(log: Dent.Lincoln) {
-    log.debug('[scan-start]')
+    log.debug('[start]')
 
     const tasks = Object.keys(this.options.mounts)
       .filter((name) => this.options.mounts[name].enabled)
-      .map((name) => async () => {
-        log.debug('[scan-mount-start]', { mount: name })
+      .map((name) => {
+        log.debug('[mount-start]', { mount: name })
 
         const mount = this.options.mounts[name]
 
-        for await (const mountfile of this.storage.files(mount)) {
-          const transformed = await this.tasks.reduce(
-            (previous, task) =>
-              previous.then(async (file) => {
-                mountfile.files = await task.file(file.files)
-                return mountfile
-              }),
-            Promise.resolve(mountfile),
-          )
+        return async () => {
+          for await (const mountfile of this.storage.files(mount)) {
+            try {
+              const transformed = await this.tasks.reduce(
+                (previous, task) =>
+                  previous.then(async (file) => {
+                    mountfile.files = await task.file(file.files)
+                    return mountfile
+                  }),
+                Promise.resolve(mountfile),
+              )
 
-          try {
-            await retryAsync(() => this.cinemon.files.update(transformed), { delay: 1000, maxTry: 5 })
-            this.log.debug(transformed.checksum, transformed.files)
-          } catch (error) {
-            log.error(error)
+              await retryAsync(() => this.cinemon.files.update(transformed), { delay: 1000, maxTry: 5 })
+              this.log.debug(transformed.checksum, transformed.files)
+            } catch (error) {
+              log.error(error)
+            }
           }
-        }
 
-        log.debug('[scan-mount-done]', { mount: name })
+          log.debug('[mount-done]', { mount: name })
+        }
       })
 
     try {
@@ -87,6 +89,6 @@ export class StorageAgent {
       log.error(new BError('scan-error', error))
     }
 
-    log.debug('[scan-done]')
+    log.debug('[done]')
   }
 }
