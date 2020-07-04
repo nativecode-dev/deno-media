@@ -1,4 +1,4 @@
-import { Alo, BError, Dent, Documents } from '../deps.ts'
+import { Alo, BError, Dent, Documents, Path } from '../deps.ts'
 
 import { ApiArea } from './api/ApiArea.ts'
 import { MediaStore } from './MediaStore.ts'
@@ -24,7 +24,8 @@ export class Cinemon {
 
   async run(): Promise<void> {
     try {
-      this.application.error((context: Alo.Context<any>, error: Error) => {
+      this.application.error(async (context: Alo.Context<any>, error: Error) => {
+        await Deno.writeTextFile(Path.join(Deno.cwd(), `last-error-${Date.now()}.log`), JSON.stringify({ context }))
         context.response.result = Alo.Content('This page unprocessed error', (error as Alo.HttpError).httpCode || 500)
         context.response.setImmediately()
         this.log.fatal(new BError('fatal', error), { context })
