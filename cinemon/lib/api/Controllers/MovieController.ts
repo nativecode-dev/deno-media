@@ -6,17 +6,29 @@ export class MovieController {
 
   @Alo.Get()
   async get() {
-    return await this.context.movies.all()
+    try {
+      return Alo.Content(await this.context.movies.all(), 200)
+    } catch {
+      return Alo.Content([], 404)
+    }
   }
 
   @Alo.Get(':imdb_id')
   async getbyId(imdb_id: string) {
-    return await this.context.movies.get(imdb_id)
+    try {
+      return Alo.Content(await this.context.movies.get(imdb_id), 200)
+    } catch {
+      return Alo.Content({}, 404)
+    }
   }
 
   @Alo.Put()
   async put(@Alo.Req() req: Alo.Request) {
-    const movie = await req.body()
-    return await this.context.movies.update(movie)
+    try {
+      const movie = await req.body()
+      return Alo.Content(await this.context.movies.update(movie), 200)
+    } catch {
+      return Alo.Content({}, 404)
+    }
   }
 }

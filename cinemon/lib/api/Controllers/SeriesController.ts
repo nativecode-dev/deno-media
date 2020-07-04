@@ -6,17 +6,29 @@ export class SeriesController {
 
   @Alo.Get()
   async get() {
-    return await this.context.series.all()
+    try {
+      return Alo.Content(await this.context.series.all(), 200)
+    } catch {
+      return Alo.Content({}, 404)
+    }
   }
 
   @Alo.Get(':imdb_id')
   async getbyId(imdb_id: string) {
-    return await this.context.series.get(imdb_id)
+    try {
+      return Alo.Content(await this.context.series.get(imdb_id), 200)
+    } catch {
+      return Alo.Content({}, 404)
+    }
   }
 
   @Alo.Put()
   async put(@Alo.Req() req: Alo.Request) {
-    const series = await req.body()
-    return await this.context.series.update(series)
+    try {
+      const series = await req.body()
+      return Alo.Content(await this.context.series.update(series), 200)
+    } catch {
+      return Alo.Content({}, 404)
+    }
   }
 }

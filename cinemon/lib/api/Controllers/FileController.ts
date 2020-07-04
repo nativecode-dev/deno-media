@@ -6,17 +6,29 @@ export class FileController {
 
   @Alo.Get()
   async get() {
-    return await this.context.files.all()
+    try {
+      return Alo.Content(await this.context.files.all(), 200)
+    } catch {
+      return Alo.Content([], 404)
+    }
   }
 
   @Alo.Get('/:id')
   async getById(id: string) {
-    return await this.context.files.get(id)
+    try {
+      return Alo.Content(await this.context.files.get(id), 200)
+    } catch {
+      return Alo.Content({}, 404)
+    }
   }
 
   @Alo.Put()
   async put(@Alo.Req() req: Alo.Request) {
-    const file = await req.body()
-    return await this.context.files.update(file)
+    try {
+      const file = await req.body()
+      return Alo.Content(await this.context.files.update(file), 200)
+    } catch {
+      return Alo.Content({}, 404)
+    }
   }
 }
