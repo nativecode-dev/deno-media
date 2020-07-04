@@ -28,14 +28,14 @@ export class Cinemon {
         context.response.result = Alo.Content('This page unprocessed error', (error as Alo.HttpError).httpCode || 500)
         context.response.setImmediately()
         this.log.error(error, context)
-        Deno.exit()
+        Deno.exit(1)
       })
 
       await this.createJobs()
       await this.application.listen({ port: this.options.hosting.endpoint.port || 3000 })
     } catch (error) {
       this.log.error(error)
-      Deno.exit()
+      Deno.exit(1)
     }
   }
 
