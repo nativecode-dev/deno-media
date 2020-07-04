@@ -47,7 +47,7 @@ export class Cinemon {
         await Promise.all([this.unmonitorRadarr()])
       },
       name: 'unmonitor',
-      schedule: '30s',
+      schedule: this.options.schedules.unmonitor,
       type: Dent.ScheduleType.every,
     })
 

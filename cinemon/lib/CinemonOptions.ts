@@ -21,6 +21,7 @@ export const DefaultCinemonOptions: CinemonOptions = {
     name: 'cinemon',
   },
   schedules: {
+    unmonitor: '5m',
     sync: '10m',
   },
   type: 'cinemon',
