@@ -33,6 +33,7 @@ export class Cinemon {
       })
 
       await this.createJobs()
+
       await this.application.listen({ port: this.options.hosting.endpoint.port || 3000 })
     } catch (error) {
       this.log.error(error)
@@ -41,6 +42,15 @@ export class Cinemon {
   }
 
   private async createJobs() {
+    this.scheduler.fromSchedule({
+      command: async () => {
+        await Promise.all([this.unmonitorRadarr()])
+      },
+      name: 'unmonitor',
+      schedule: '30s',
+      type: Dent.ScheduleType.every,
+    })
+
     this.scheduler.fromSchedule({
       command: async () => {
         await Promise.all([this.syncRadarr(), this.syncSonarr()])
@@ -54,8 +64,8 @@ export class Cinemon {
       command: async () => {
         await Promise.all([this.syncRadarr(true), this.syncSonarr(true)])
       },
-      name: 'sync',
-      schedule: '12am',
+      name: 'resync',
+      schedule: '03:00',
       type: Dent.ScheduleType.daily,
     })
   }
@@ -71,7 +81,7 @@ export class Cinemon {
         .filter((x) => x.imdbId !== '')
         .filter((x) => x.year !== 0)
 
-      log.debug('[radarr-start]', { count: movies.length })
+      log.debug('[start]', { count: movies.length })
 
       const tasks = movies.map((movie) => {
         return async () => {
@@ -103,7 +113,7 @@ export class Cinemon {
       log.error(error)
     }
 
-    log.debug('[radarr-done]')
+    log.debug('[done]')
   }
 
   private async syncSonarr(resync: boolean = false) {
@@ -117,7 +127,7 @@ export class Cinemon {
         .filter((x) => x.imdbId !== '')
         .filter((x) => x.year !== 0)
 
-      log.debug('[sonarr-start]', { content: shows.length })
+      log.debug('[start]', { content: shows.length })
 
       const tasks = shows.map((series) => {
         return async () => {
@@ -148,6 +158,13 @@ export class Cinemon {
       log.debug(error)
     }
 
-    log.debug('[sonarr-done]')
+    log.debug('[done]')
+  }
+
+  private async unmonitorRadarr() {
+    const log = this.log.extend('radarr')
+    log.debug('[unmonitor-start]')
+    const movies = await this.store.radarr.unmonitor(false)
+    log.debug('[unmonitor-done]', { unmonitor: movies.length })
   }
 }
