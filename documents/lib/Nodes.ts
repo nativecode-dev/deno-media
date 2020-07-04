@@ -36,6 +36,14 @@ export class Nodes {
     }
   }
 
+  async get(id: string): Promise<Node | null> {
+    try {
+      return await this.collection.get(id)
+    } catch (error) {
+      throw new BError('get', error)
+    }
+  }
+
   async register(name: string, hostname: string, ipaddress: string) {
     try {
       const { domain, host } = this.hostparts(hostname)

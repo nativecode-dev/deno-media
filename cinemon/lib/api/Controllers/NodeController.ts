@@ -6,7 +6,26 @@ export class NodeController {
 
   @Alo.Get()
   async get() {
-    return await this.context.nodes.all()
+    try {
+      return await this.context.nodes.all()
+    } catch {
+      return Alo.Content([], 404)
+    }
+  }
+
+  @Alo.Get('/:id')
+  async getById(@Alo.Param('id') id: string) {
+    try {
+      const node = await this.context.nodes.get(id)
+
+      if (node) {
+        return Alo.Content(node, 200)
+      }
+
+      return Alo.Content({}, 404)
+    } catch {
+      return Alo.Content({}, 404)
+    }
   }
 
   @Alo.Post('/register')
@@ -18,7 +37,7 @@ export class NodeController {
       await this.context.nodes.register(name, hostname, ipaddress)
     }
 
-    return { name, hostname, ipaddress }
+    return Alo.Content({ name, hostname, ipaddress }, 200)
   }
 
   @Alo.Put('/checkin')
@@ -28,10 +47,11 @@ export class NodeController {
 
     if (registered === false) {
       await this.context.nodes.register(name, hostname, ipaddress)
+      return Alo.Content({ name, hostname, ipaddress }, 201)
     }
 
     await this.context.nodes.checkin(name, hostname, ipaddress)
 
-    return { name, hostname, ipaddress }
+    return Alo.Content({ name, hostname, ipaddress }, 200)
   }
 }
