@@ -7,7 +7,8 @@ export class NodeController {
   @Alo.Get()
   async get() {
     try {
-      return await this.context.nodes.all()
+      const items = await this.context.nodes.all()
+      return Alo.Content(items, 200)
     } catch {
       return Alo.Content([], 404)
     }

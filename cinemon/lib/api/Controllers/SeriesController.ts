@@ -7,7 +7,8 @@ export class SeriesController {
   @Alo.Get()
   async get() {
     try {
-      return Alo.Content(await this.context.series.all(), 200)
+      const items = await this.context.series.all()
+      return Alo.Content(items, 200)
     } catch {
       return Alo.Content({}, 404)
     }
@@ -32,7 +33,8 @@ export class SeriesController {
   async put(@Alo.Req() req: Alo.Request) {
     try {
       const series = await req.body()
-      return Alo.Content(await this.context.series.update(series), 200)
+      await this.context.series.update(series)
+      return Alo.Content({}, 200)
     } catch {
       return Alo.Content({}, 404)
     }

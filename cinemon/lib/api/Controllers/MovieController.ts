@@ -7,7 +7,8 @@ export class MovieController {
   @Alo.Get()
   async get() {
     try {
-      return Alo.Content(await this.context.movies.all(), 200)
+      const items = await this.context.movies.all()
+      return Alo.Content(items, 200)
     } catch {
       return Alo.Content([], 404)
     }
@@ -31,7 +32,8 @@ export class MovieController {
   async put(@Alo.Req() req: Alo.Request) {
     try {
       const movie = await req.body()
-      return Alo.Content(await this.context.movies.update(movie), 200)
+      await this.context.movies.update(movie)
+      return Alo.Content({}, 200)
     } catch {
       return Alo.Content({}, 404)
     }

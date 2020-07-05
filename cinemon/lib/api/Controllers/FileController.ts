@@ -7,7 +7,8 @@ export class FileController {
   @Alo.Get()
   async get() {
     try {
-      return Alo.Content(await this.context.files.all(), 200)
+      const items = await this.context.files.all()
+      return Alo.Content(items, 200)
     } catch {
       return Alo.Content([], 404)
     }
