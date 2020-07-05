@@ -28,7 +28,7 @@ export class Cinemon {
         await Deno.writeTextFile(Path.join(Deno.cwd(), `last-error-${Date.now()}.log`), JSON.stringify({ context }))
         context.response.result = Alo.Content('This page unprocessed error', (error as Alo.HttpError).httpCode || 500)
         context.response.setImmediately()
-        this.log.fatal(new BError('fatal', error), { context })
+        this.log.fatal(new BError('fatal', error), { url: context.request.url, response: context.response })
         Deno.exit(1)
       })
 
