@@ -16,7 +16,13 @@ export class FileController {
   @Alo.Get('/:id')
   async getById(id: string) {
     try {
-      return Alo.Content(await this.context.files.get(id), 200)
+      const file = await this.context.files.get(id)
+
+      if (file) {
+        return Alo.Content({}, 200)
+      }
+
+      return Alo.Content({}, 404)
     } catch {
       return Alo.Content({}, 404)
     }
@@ -26,7 +32,8 @@ export class FileController {
   async put(@Alo.Req() req: Alo.Request) {
     try {
       const file = await req.body()
-      return Alo.Content(await this.context.files.update(file), 200)
+      await this.context.files.update(file)
+      return Alo.Content({}, 200)
     } catch {
       return Alo.Content({}, 404)
     }

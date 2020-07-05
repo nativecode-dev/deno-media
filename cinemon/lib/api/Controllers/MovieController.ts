@@ -16,7 +16,12 @@ export class MovieController {
   @Alo.Get(':imdb_id')
   async getbyId(imdb_id: string) {
     try {
-      return Alo.Content(await this.context.movies.get(imdb_id), 200)
+      const movie = await this.context.movies.get(imdb_id)
+      if (movie) {
+        return Alo.Content(movie, 200)
+      }
+
+      return Alo.Content({}, 404)
     } catch {
       return Alo.Content({}, 404)
     }

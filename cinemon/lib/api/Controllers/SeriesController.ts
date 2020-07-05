@@ -16,7 +16,13 @@ export class SeriesController {
   @Alo.Get(':imdb_id')
   async getbyId(imdb_id: string) {
     try {
-      return Alo.Content(await this.context.series.get(imdb_id), 200)
+      const series = await this.context.series.get(imdb_id)
+
+      if (series) {
+        return Alo.Content(series, 200)
+      }
+
+      return Alo.Content({}, 404)
     } catch {
       return Alo.Content({}, 404)
     }
