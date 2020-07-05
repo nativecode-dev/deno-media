@@ -9,8 +9,8 @@ export class MovieController {
     try {
       const items = await this.context.movies.all()
       return Alo.Content(items, 200)
-    } catch {
-      return Alo.Content([], 404)
+    } catch (error) {
+      return Alo.Content(error, 404)
     }
   }
 

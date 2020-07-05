@@ -31,28 +31,36 @@ export class NodeController {
 
   @Alo.Post('/register')
   async post(@Alo.Req() req: Alo.Request) {
-    const { name, hostname, ipaddress } = await req.body()
-    const registered = await this.context.nodes.registered(name, hostname)
+    try {
+      const { name, hostname, ipaddress } = await req.body()
+      const registered = await this.context.nodes.registered(name, hostname)
 
-    if (registered === false) {
-      await this.context.nodes.register(name, hostname, ipaddress)
+      if (registered === false) {
+        await this.context.nodes.register(name, hostname, ipaddress)
+      }
+
+      return Alo.Content({ name, hostname, ipaddress }, 200)
+    } catch (error) {
+      return Alo.Content(error, 500)
     }
-
-    return Alo.Content({ name, hostname, ipaddress }, 200)
   }
 
   @Alo.Put('/checkin')
   async put(@Alo.Req() req: Alo.Request) {
-    const { name, hostname, ipaddress } = await req.body()
-    const registered = await this.context.nodes.registered(name, hostname)
+    try {
+      const { name, hostname, ipaddress } = await req.body()
+      const registered = await this.context.nodes.registered(name, hostname)
 
-    if (registered === false) {
-      await this.context.nodes.register(name, hostname, ipaddress)
-      return Alo.Content({ name, hostname, ipaddress }, 201)
+      if (registered === false) {
+        await this.context.nodes.register(name, hostname, ipaddress)
+        return Alo.Content({ name, hostname, ipaddress }, 201)
+      }
+
+      await this.context.nodes.checkin(name, hostname, ipaddress)
+
+      return Alo.Content({ name, hostname, ipaddress }, 200)
+    } catch (error) {
+      return Alo.Content(error, 500)
     }
-
-    await this.context.nodes.checkin(name, hostname, ipaddress)
-
-    return Alo.Content({ name, hostname, ipaddress }, 200)
   }
 }
