@@ -29,9 +29,10 @@ await store.create(DB_NAME)
 
 const collection = store.collection<Node>(DB_NAME, 'node')
 const client = new Nodes(collection)
+const ipaddress = (await Dent.SysInfo.ip_private()) || (await Dent.SysInfo.ip_public()) || '127.0.0.1'
 
 Deno.test('should register node', async () => {
-  await client.register('test', HOSTNAME)
+  await client.register('test', HOSTNAME, ipaddress)
 })
 
 Deno.test('should get nodes', async () => {
