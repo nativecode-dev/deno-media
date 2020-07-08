@@ -38,7 +38,7 @@ test:
 prerelease:
   extends: .configure-publish
   script:
-    - deno bundle -c tsconfig.json --unstable run.ts dist/mod.ts
+    - deno bundle -c tsconfig.json --unstable mod.ts dist/mod.ts
     - npx standard-version --prerelease beta
     - git push --follow-tags origin develop
   only:
@@ -47,7 +47,7 @@ prerelease:
 release:
   extends: .configure-publish
   script:
-    - deno bundle -c tsconfig.json --unstable run.ts dist/mod.ts
+    - deno bundle -c tsconfig.json --unstable mod.ts dist/mod.ts
     - npx standard-version
     - git push --follow-tags origin master
   only:
