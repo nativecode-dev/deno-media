@@ -1,8 +1,22 @@
-image: nativecode/deno:0.2.0
+image: nativecode/deno-build:0.1.0
 
 stages:
   - test
   - publish
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+.configure-publish:
+  stage: publish
+  artifacts:
+    paths:
+      - dist
+  before_script:
+    - mkdir dist
+    - source .ci-env.sh
+    - bash .citools/setup-git ${BUILD_REPO_BRANCH} ${BUILD_REPO_GIT} ${BUILD_REPO_EMAIL}
+    - bash .citools/setup-ssh ${BUILD_REPO_DOMAIN} ${BUILD_REPO_SSHKEY_PATH} ${BUILD_REPO_DOMAIN_SSH}
 
 test:
   stage: test
@@ -20,13 +34,21 @@ test:
     COUCHDB_PASSWORD: password
     RABBITMQ_DEFAULT_USER: admin
     RABBITMQ_DEFAULT_PASS: password
-publish:
-  stage: publish
+
+prerelease:
+  extends: .configure-publish
   script:
-    - mkdir dist
-    - deno bundle --config tsconfig.json --unstable mod.ts dist/mod.ts
+    - deno bundle -c tsconfig.json --unstable run.ts dist/mod.ts
+    - npx standard-version --prerelease beta
+    - git push --follow-tags origin develop
+  only:
+    - develop
+
+release:
+  extends: .configure-publish
+  script:
+    - deno bundle -c tsconfig.json --unstable run.ts dist/mod.ts
+    - npx standard-version
+    - git push --follow-tags origin master
   only:
     - master
-  artifacts:
-    paths:
-      - dist

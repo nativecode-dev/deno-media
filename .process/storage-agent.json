@@ -1,6 +1,6 @@
 {
   "name": "storage-agent",
-  "script": "deno run -A -c tsconfig.json --unstable run.ts storage-agent",
+  "script": "deno run -A -c tsconfig.json --unstable mod.ts storage-agent",
   "watch": [
     ".config",
     "documents",

@@ -1,6 +1,6 @@
 {
   "name": "cinemon",
-  "script": "deno run -A -c tsconfig.json --unstable run.ts cinemon",
+  "script": "deno run -A -c tsconfig.json --unstable mod.ts cinemon",
   "watch": [
     ".config",
     "cinemon",
