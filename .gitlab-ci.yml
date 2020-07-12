@@ -9,7 +9,7 @@ variables:
 
 .binaries:
   before_script:
-    - deno install --allow-run --name dent https://raw.githubusercontent.com/nativecode-dev/dent/v0.3.1/dent/run.ts
+    - deno install --allow-env --allow-run --name dent https://raw.githubusercontent.com/nativecode-dev/dent/v0.3.1/dent/run.ts
     - deno install --allow-net --name status-check https://raw.githubusercontent.com/nativecode-dev/dent/v0.3.1/status-check/run.ts
     - echo "export PATH=/root/.deno/bin:$PATH" >> $HOME/.bashrc
     - source $HOME/.bashrc
