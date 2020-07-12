@@ -1,4 +1,4 @@
-import { Dent } from '../deps.ts'
+import { Dent, Path } from '../deps.ts'
 
 import { MediaStoreConnections, DefaultMediaStoreConnections } from './MediaStoreConnections.ts'
 
@@ -8,7 +8,10 @@ export interface CinemonOptions {
   hosting: Dent.ConnectorOptions
   schedules: { [key: string]: string }
   type: string
+  workdir: string
 }
+
+const workdir = Path.dirname(Path.fromFileUrl(import.meta.url))
 
 export const DefaultCinemonOptions: CinemonOptions = {
   connections: DefaultMediaStoreConnections,
@@ -25,6 +28,7 @@ export const DefaultCinemonOptions: CinemonOptions = {
     sync: '10m',
   },
   type: 'cinemon',
+  workdir: Path.join(workdir, '../../'),
 }
 
 export const CinemonOptionsToken: symbol = Symbol('CinemonOptions')

@@ -1,4 +1,4 @@
-import { Alo, BError, Dent, Documents, Path } from '../deps.ts'
+import { Alo, BError, Dent, Documents, OpenApi, Path } from '../deps.ts'
 
 import { ApiArea } from './api/ApiArea.ts'
 import { MediaStore } from './MediaStore.ts'
@@ -8,6 +8,7 @@ import { CinemonOptions, CinemonOptionsToken } from './CinemonOptions.ts'
 @Alo.Injectable()
 export class Cinemon {
   private readonly log: Dent.Lincoln
+  private readonly settings: Alo.AppSettings
 
   protected readonly application: Alo.App<any>
 
@@ -18,21 +19,32 @@ export class Cinemon {
     @Alo.Inject(MediaStore) private readonly store: MediaStore,
     @Alo.Inject(Dent.LoggerType) logger: Dent.Lincoln,
   ) {
-    this.application = new Alo.App({ areas: [ApiArea], middlewares: [LogMiddleware] })
+    this.settings = { areas: [ApiArea], middlewares: [LogMiddleware] }
+    this.application = new Alo.App(this.settings)
     this.log = logger.extend('server')
   }
 
   async run(): Promise<void> {
     try {
       this.application.error(async (context: Alo.Context<any>, error: Error) => {
+        this.log.fatal(new BError('fatal', error), { url: context.request.url })
         await Deno.writeTextFile(Path.join(Deno.cwd(), `last-error-${Date.now()}.log`), JSON.stringify({ context }))
         context.response.result = Alo.Content('This page unprocessed error', (error as Alo.HttpError).httpCode || 500)
         context.response.setImmediately()
-        this.log.fatal(new BError('fatal', error), { url: context.request.url })
         Deno.exit(1)
       })
 
       await this.createJobs()
+
+      const builder = new Dent.UrlBuilder(this.options.hosting)
+
+      const version = await Deno.readTextFile(Path.join(this.options.workdir, 'VERSION'))
+
+      OpenApi.AlosaurOpenApiBuilder.create(this.settings)
+        .addServer({ url: builder.withPort().toUrl() })
+        .addTitle(this.options.type)
+        .addVersion(version.trim())
+        .saveToFile(Path.join(this.options.workdir, 'api.json'))
 
       await this.application.listen({ port: this.options.hosting.endpoint.port || 3000 })
     } catch (error) {
