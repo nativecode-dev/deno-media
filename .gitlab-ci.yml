@@ -19,7 +19,7 @@ test:
   stage: test
   script:
     - status-check //localhost:5672 //localhost:6379 http://localhost:5984
-    - deno test --allow-env --allow-read --allow-net --allow-write --config tsconfig.json --unstable
+    - deno test --allow-env --allow-read --allow-run --allow-net --allow-write --config tsconfig.json --unstable
   services:
     - couchdb:2
     - rabbitmq:3-management-alpine
